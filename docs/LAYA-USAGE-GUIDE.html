@@ -1,0 +1,166 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>How to Use Laya — Practical Guide</title>
+<style>
+  body { background:#0d1117; color:#e6edf3; font:14px/1.55 -apple-system,Segoe UI,Roboto,sans-serif; margin:0; }
+  .wrap { max-width:1000px; margin:0 auto; padding:28px 20px 60px; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:38px 0 10px; border-bottom:1px solid #30363d; padding-bottom:6px;}
+  h3 { font-size:14px; margin:20px 0 6px; color:#58a6ff;}
+  .sub { color:#8b949e; font-size:12.5px; margin-bottom:20px; }
+  table { border-collapse:collapse; width:100%; margin:12px 0; font-size:12.5px; }
+  th,td { text-align:left; padding:7px 10px; border:1px solid #30363d; vertical-align:top; }
+  th { background:#161b22; font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; color:#8b949e; }
+  code, pre { font-family:ui-monospace,Menlo,monospace; }
+  code { background:#0a0d12; border:1px solid #30363d; border-radius:4px; padding:1px 5px; font-size:12px; }
+  pre { background:#0a0d12; border:1px solid #30363d; border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:12px; line-height:1.5; }
+  pre .c { color:#8b949e; } pre .k { color:#d29922; } pre .g { color:#3fb950; } pre .b { color:#58a6ff; }
+  .card { background:#161b22; border:1px solid #30363d; border-radius:10px; padding:14px 16px; margin:14px 0; }
+  ul { margin:8px 0; padding-left:20px; } li { margin:4px 0; }
+  .fine { font-size:11px; color:#8b949e; }
+  .warn { border-left:3px solid #d29922; padding:8px 12px; background:#241c0e; border-radius:0 8px 8px 0; margin:10px 0; font-size:12.5px; }
+</style></head><body><div class="wrap">
+<h1>🎯 How to Use Laya — the practical guide</h1>
+<div class="sub">2026-09-27 · for the AI SOC deployment (laya 0.3.20, control host + edge host) · companion to LAYA-SETUP.md (install) and the 300-report</div>
+
+<h2>1 · The 60-second mental model</h2>
+<p>Laya is <b>not</b> a chatbot. It is a decision function: text in → typed answers out, <b>one forward pass</b>, no
+text generation. You hand it a compact <i>state</i> and a set of typed <i>questions</i>; it returns an
+<i>answer + calibrated confidence</i> per question in ~0.9 s on CPU:</p>
+<svg viewBox="0 0 940 210" role="img" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><title>Lifecycle</title><rect x="10" y="60" width="140" height="54" rx="6" fill="#161b22" opacity="1.0" stroke="blue" stroke-width="1"/><text x="80.0" y="78" font-size="11" fill="blue" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">your data</text><text x="80.0" y="94" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">wazuh alert · email · ticket</text><rect x="180" y="60" width="170" height="54" rx="6" fill="#161b22" opacity="1.0" stroke="good" stroke-width="1"/><text x="265.0" y="78" font-size="11" fill="good" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">state builder</text><text x="265.0" y="94" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">compact text ≤1024 tok</text><rect x="380" y="60" width="160" height="54" rx="6" fill="#161b22" opacity="1.0" stroke="purple" stroke-width="1"/><text x="460.0" y="78" font-size="11" fill="purple" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">POST /v1/systemone</text><text x="460.0" y="94" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">{state, questions}</text><rect x="570" y="60" width="150" height="54" rx="6" fill="#161b22" opacity="1.0" stroke="good" stroke-width="1"/><text x="645.0" y="78" font-size="11" fill="good" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">Laya (1 pass)</text><text x="645.0" y="94" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">~0.9 s CPU</text><rect x="750" y="60" width="180" height="54" rx="6" fill="#161b22" opacity="1.0" stroke="blue" stroke-width="1"/><text x="840.0" y="78" font-size="11" fill="blue" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">typed answers</text><text x="840.0" y="94" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">choice · score · noul</text><line x1="150" y1="87" x2="180" y2="87" stroke="#8b949e" stroke-width="1.6"/><polygon points="180,87 173,83 173,91" fill="#8b949e"/><line x1="350" y1="87" x2="380" y2="87" stroke="#8b949e" stroke-width="1.6"/><polygon points="380,87 373,83 373,91" fill="#8b949e"/><line x1="540" y1="87" x2="570" y2="87" stroke="#8b949e" stroke-width="1.6"/><polygon points="570,87 563,83 563,91" fill="#8b949e"/><line x1="720" y1="87" x2="750" y2="87" stroke="#8b949e" stroke-width="1.6"/><polygon points="750,87 743,83 743,91" fill="#8b949e"/><rect x="240" y="140" width="300" height="50" rx="6" fill="#161b22" opacity="1.0" stroke="warn" stroke-width="1"/><text x="390.0" y="158" font-size="11" fill="warn" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">confidence gate</text><text x="390.0" y="174" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">conf ≥ τ → act · else → gemma LLM</text><line x1="390" y1="114" x2="390" y2="140" stroke="#d29922" stroke-width="1.6"/><polygon points="390,140 383,136 383,144" fill="#d29922"/><line x1="540" y1="140" x2="540" y2="140" stroke="#8b949e" stroke-width="1.6"/><polygon points="540,140 533,136 533,144" fill="#8b949e"/><line x1="540" y1="140" x2="540" y2="165" stroke="#8b949e" stroke-width="1.6"/><polygon points="540,165 533,161 533,169" fill="#8b949e"/><text x="560" y="158" font-size="9" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">low conf → LLM fallback (gemma :21402)</text><text x="10" y="30" font-size="13" fill="#e6edf3" text-anchor="start" font-weight="bold" font-family="ui-monospace,Menlo,monospace">Request lifecycle — caller builds a small state, Laya answers typed questions in one pass, the gate decides</text></svg>
+<table>
+<tr><th>Type</th><th>Answer</th><th>Use it for</th></tr>
+<tr><td><b>choice</b></td><td>one option from your criteria + full probability distribution</td><td>severity class, response action, channel routing</td></tr>
+<tr><td><b>score</b></td><td>position on a scale you define</td><td>urgency, priority, risk level</td></tr>
+<tr><td><b>noul</b></td><td>P(answer is yes) — a probability, no option picking</td><td>is it noise? escalate? reply needed? known pattern?</td></tr>
+</table>
+<p class="fine">Never ask Laya to write text, summarize, or reason in steps — that's the narrator/gemma path. Laya answers questions you define; the quality of those questions is the quality of the system.</p>
+
+<h2>2 · Where it lives</h2>
+<table>
+<tr><th>Endpoint</th><th>Host</th><th>Notes</th></tr>
+<tr><td><code>http://127.0.0.1:8099</code></td><td>control host</td><td>8 threads, source repo + evals live here</td></tr>
+<tr><td><code>http://127.0.0.1:8099</code></td><td>edge host</td><td>6 threads — replicated for the ingest/mail paths</td></tr>
+</table>
+<p class="fine">Loopback-only on both hosts. Callers must run on the same host (or tunnel). <code>LAYA_API_KEY</code> must be set before ever binding a non-loopback interface. systemd user unit <code>laya-serve.service</code> (Restart=always), 4.7 GB RAM, all 3 checkpoints preloaded.</p>
+
+<h2>3 · Quickstart (60 seconds)</h2>
+<pre>curl -s http://127.0.0.1:8099/v1/systemone -H 'content-type: application/json' -d '{
+  "state": "Alert: repeated failed SSH logins from 192.0.2.5 targeting prod-01 root
+            over 3 minutes. fail2ban banned the source IP. No successful logins.",
+  "questions": {
+    "alert_class": {"type": "choice",
+      "instructions": "What kind of event is this?",
+      "criteria": {
+        "bruteforce": "repeated auth failures against a service",
+        "malware":    "evidence of malicious code execution",
+        "benign":     "routine ops noise, tests, expected maintenance",
+        "other":      "anything else"}},
+    "urgency":     {"type": "score",
+      "instructions": "How urgent is triage for this alert?",
+      "criteria": ["not urgent", "soon", "critical"]},
+    "auto_close":  {"type": "noul",
+      "instructions": "Is this alert safe to auto-close with no analyst action?"}
+  }
+}'</pre>
+<p>Round-trip on CPU: <b>~0.5 s</b> for 3 questions. Response anatomy:</p>
+<svg viewBox="0 0 940 250" role="img" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><title>Answer anatomy</title><rect x="20" y="20" width="900" height="210" rx="6" fill="#161b22" opacity="1.0" stroke="#30363d" stroke-width="1"/><text x="30" y="42" font-size="12" fill="#58a6ff" text-anchor="start" font-weight="bold" font-family="ui-monospace,Menlo,monospace">POST /v1/systemone  →  answers</text><text x="34" y="66" font-size="10.5" fill="#e6edf3" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">&quot;known_pattern&quot;: {</text><text x="34" y="79" font-size="10.5" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">  &quot;type&quot;: &quot;noul&quot;,            ← question type</text><text x="34" y="92" font-size="10.5" fill="#e6edf3" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">  &quot;choice&quot;: null,            ← noul has no option</text><text x="34" y="105" font-size="10.5" fill="#3fb950" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">  &quot;noul&quot;: 0.0934,            ← P(yes) = 9.3%  → 91% confident NO</text><text x="34" y="118" font-size="10.5" fill="#d29922" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">  &quot;confidence&quot;: 0.9066,      ← calibrated confidence = THE gate input</text><text x="34" y="131" font-size="10.5" fill="#e6edf3" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">}</text><text x="34" y="144" font-size="10.5" fill="#e6edf3" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">&quot;response&quot;: {</text><text x="34" y="157" font-size="10.5" fill="#3fb950" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">  &quot;choice&quot;: &quot;auto_remediate&quot;, ← picked option (act on this in code)</text><text x="34" y="170" font-size="10.5" fill="#d29922" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">  &quot;confidence&quot;: 0.0235,      ← raw conf (answer_confidence 0.27) → do NOT gate</text><text x="34" y="183" font-size="10.5" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">  &quot;probabilities&quot;: { … }     ← full distribution over the bins</text><text x="34" y="196" font-size="10.5" fill="#e6edf3" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">}</text><text x="640" y="72" font-size="9.5" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">routing: {&quot;model&quot;:&quot;typed-decisions&quot;,</text><text x="640" y="85" font-size="9.5" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">         &quot;reason&quot;:&quot;typed questions&quot;}</text><text x="640" y="104" font-size="9.5" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">usage:   {&quot;input_tokens&quot;: 87}</text><text x="640" y="123" font-size="9.5" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">→ sanity-check ≤1024</text><text x="30" y="200" font-size="10" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">Gate rule: conf ≥ τ (e.g. 0.7) → act on the choice · below → send the turn to gemma :21402 and log both.</text></svg>
+
+<p class="fine"><b>Read the confidence first</b> — a choice at conf 0.02 is Laya saying "don't trust me"; treat that as "send to gemma", not as an answer. noul works opposite: <code>confidence = 1 − noul</code> is how sure it is about the "yes" reading — check the field, not the sign convention.</p>
+
+<h2>4 · Writing a question set (the part that matters)</h2>
+<p>Each question has 3 ingredients. Get them right and Laya behaves; skip them and you get zero-shot mush (see the real smoke: base-model "malware 0.71" for a textbook bruteforce — <i>that's what criteria are for</i>):</p>
+<ul>
+<li><b><code>instructions</code></b> — one sentence, decision-oriented. "Is this a known, recurring event pattern?" beats "classify the event".</li>
+<li><b><code>criteria</code></b> — for choice/score: the options <i>with one-line definitions</i> (score takes an ordered list like <code>["anytime","soon","critical"]</code>). noul takes none — it's binary.</li>
+<li><b>a name that says the answer</b> — the option is what you act on in code: <code>answers["response"]["choice"] == "auto_remediate"</code>.</li>
+</ul>
+<h3>The live SOC sets (copy these patterns)</h3>
+<pre><span class="c"># evals/laya_questions.yaml — triage (v1)</span>
+severity:       <span class="k">type: choice</span>  # informational|low|medium|high|critical, level-based criteria
+known_pattern:  <span class="k">type: noul</span>    # "Is this a known, recurring event pattern…?"
+response:       <span class="k">type: choice</span>  # note_only|digest_only|email|page|auto_remediate
+escalate:       <span class="k">type: noul</span>    # "Should this alert open an incident / reach a human now…"
+
+<span class="c"># email (imap-watcher)</span>
+reply_worthy:     <span class="k">type: noul</span>   # "Should the SOC send a substantive human reply…"
+priority:         <span class="k">type: score</span>  # anytime|soon|critical
+automated_noise:  <span class="k">type: noul</span>   # bounce/notification/bot vs human asking
+
+<span class="c"># ioc (Phase 2 — needs a trigger path first)</span>
+reputation:        <span class="k">type: choice</span> # malicious|suspicious|neutral|unknown
+needs_enrichment:  <span class="k">type: noul</span></pre>
+<p class="fine">Semantics contract lives in <code>soc-agents/soc-triage/IDENTITY.md</code>; the YAML is the review surface. Keep them in sync — there's a self-check test in state_builder.</p>
+
+<h2>5 · State building — the 150-token discipline</h2>
+<p>Laya reads ≤512 tok (english) / 1024 (typed-decisions) / 8192 (multilingual+max_len). SOC turns are ~120k tok. The whole trick is <b>building a small state</b> — never feed raw turns:</p>
+<pre><span class="c"># build_alert_state() — live code, edge host laya_shadow.py</span>
+"Wazuh alert rule 5710 severity level 12 on agent web-01."
+"Rule: Multiple failed logins from 1.2.3.4."        <span class="c"># rule description ≤220 chars</span>
+"Decoder: sshd. Source IP: 1.2.3.4. Location: /var/log/auth.log."</pre>
+<ul>
+<li>Put <b>the fields the question needs</b> in the state — decision inputs only (rule id/level/agent/srcip/description for triage; from/subject/body-head for email).</li>
+<li>Target ≤150 tokens per alert, ≤300 per email — check <code>usage.input_tokens</code> in the response.</li>
+<li>Nested JSON (rule.level etc.) must be flattened in the builder — learned the hard way (Option A).</li>
+<li>Long docs: HTTP API has no max_len in 0.3.20 → keep HTTP states compact; the SDK supports <code>model="multilingual", max_len=8192</code> if ever needed.</li>
+</ul>
+
+<h2>6 · The gate — how a decision gets trusted</h2>
+<p>The whole point of calibrated confidence: <b>conf ≥ τ → act on Laya; below → pay for gemma</b>. Everything else is plumbing:</p>
+<ul>
+<li><b>choice</b>: gate on <code>answer_confidence</code>; never act on a low-conf <code>auto_remediate</code> (live soak: 115 such rows at conf ≈0.03 — this is why response stays shadowed until finetune).</li>
+<li><b>noul</b>: confidence = <code>1 − noul</code>; a tight band (known_pattern sits at 0.68–0.74) means the gate threshold is doing the work.</li>
+<li><b>escalate</b> also has an objective cross-check: the deterministic incident rule (sev high/critical). Live agreement 94.6% over 452 decisions.</li>
+<li>Deterministic facts (severity from rule level) <b>never go to any model</b> — a dict lookup is 1.00 accurate and free. Laya's value is the judgment questions around it.</li>
+</ul>
+
+<h2>7 · Adoption modes (how changes ship safely)</h2>
+<svg viewBox="0 0 940 190" role="img" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><title>Adoption</title><rect x="10" y="50" width="220" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="#f85149" stroke-width="1"/><text x="120" y="74" font-size="11" fill="#f85149" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">0 · LAYA_MODE=off</text><text x="120" y="94" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">gemma decides, Laya unused</text><rect x="240" y="50" width="220" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="#58a6ff" stroke-width="1"/><text x="350" y="74" font-size="11" fill="#58a6ff" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">1 · shadow</text><text x="350" y="94" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">Laya logs verdicts, gemma decides</text><rect x="470" y="50" width="220" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="#d29922" stroke-width="1"/><text x="580" y="74" font-size="11" fill="#d29922" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">2 · gated</text><text x="580" y="94" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">conf ≥ τ → Laya, else gemma</text><rect x="700" y="50" width="220" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="#3fb950" stroke-width="1"/><text x="810" y="74" font-size="11" fill="#3fb950" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">3 · primary</text><text x="810" y="94" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">Laya decides; gemma on low-conf only</text><line x1="230" y1="90" x2="240" y2="90" stroke="#8b949e" stroke-width="1.6"/><polygon points="240,90 233,86 233,94" fill="#8b949e"/><line x1="460" y1="90" x2="470" y2="90" stroke="#8b949e" stroke-width="1.6"/><polygon points="470,90 463,86 463,94" fill="#8b949e"/><line x1="690" y1="90" x2="700" y2="90" stroke="#8b949e" stroke-width="1.6"/><polygon points="700,90 693,86 693,94" fill="#8b949e"/><text x="10" y="30" font-size="13" fill="#e6edf3" text-anchor="start" font-weight="bold" font-family="ui-monospace,Menlo,monospace">Adoption ladder — every part flips per-question, rollback is one env var (LAYA_MODE=off)</text><text x="10" y="158" font-size="9.5" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">shadow = live today on ingest+email (561 decisions logged) · gated = next (known_pattern + escalate) · primary = after 2 clean weeks</text></svg>
+<ul>
+<li><b>off</b> — default; gemma path untouched. <code>LAYA_MODE=off</code> in <code>/etc/default/&lt;service&gt;</code>.</li>
+<li><b>shadow</b> — live now: every decision logged to <code>/opt/soc-openclaw/data/laya-shadow.jsonl</code>, caller ignores results. Nothing user-visible changes.</li>
+<li><b>gated</b> — Laya primary at conf ≥ per-question threshold, gemma fallback below. Flip = set <code>LAYA_MODE=gated</code> + thresholds; rollback = the env var.</li>
+<li><b>primary</b> — after 2 weeks gated-clean. LLM becomes the rare-path escalation only.</li>
+</ul>
+
+<h2>8 · Checkpoints — which one answers</h2>
+<table>
+<tr><th>Checkpoint</th><th>Ctx</th><th>Pick when</th><th>SOC verdict</th></tr>
+<tr><td><b>typed-decisions</b></td><td>1024</td><td>choice/score/noul question sets</td><td>default — beats gemma on response (0.588 vs 0.478) at 1/50th latency</td></tr>
+<tr><td><b>english</b></td><td>512</td><td>short english states, binary judgments</td><td>collapses SOC choice questions — avoid for triage</td></tr>
+<tr><td><b>multilingual</b></td><td>1024→8192</td><td>non-English / advisory-length docs</td><td>not needed yet (HTTP max_len unavailable in 0.3.20)</td></tr>
+</table>
+<p class="fine">Routing happens per request (<code>routing.model</code> in the response tells you who answered). <code>LAYA_AUTO_TASK=0</code> — routing is explicit, not automatic. One calibration bin (<code>choice:11+</code>) ships uncalibrated — confidences from that bin are raw until the Phase 4 re-fit.</p>
+
+<h2>9 · SDK &amp; CLI (for scripts and experiments)</h2>
+<pre><span class="c"># Python — same shapes as HTTP</span>
+<span class="b">from laya import Router</span>
+r = Router(preload=<span class="k">True</span>)                    <span class="c"># 4.7 GB RAM, all 3 ckpts</span>
+out = r.predict(state, questions)
+out = r.predict(long_doc, questions, model=<span class="g">"multilingual"</span>, max_len=<span class="g">8192</span>)
+
+<span class="c"># CLI — quick sanity checks</span>
+laya <span class="g">"text"</span> --preset triage --predict    <span class="c"># presets: triage, email, guard, moderation, router</span></pre>
+
+<h2>10 · Ops: health, watchdog, limits</h2>
+<ul>
+<li><b>Health:</b> <code>GET /health</code> → <code>{"status":"ok","loaded":[...],"device":"cpu"}</code> — bypasses the inference queue, safe to poll.</li>
+<li><b>Watchdog already covers it:</b> both hosts probed every 10 min + shadow-log staleness (&gt;6 h = BROKEN).</li>
+<li><b>Limits:</b> 64 questions max · 50,000 chars state · 2 MB body · <b>single inference worker</b> (requests queue; don't poll hot).</li>
+<li><b>Threads:</b> <code>LAYA_THREADS</code> ≤ physical cores (8 on control host, 6 on edge host) — oversubscribing is a big regression.</li>
+<li><b>Restart:</b> <code>systemctl --user restart laya-serve</code> (~10 s warm start, preloaded cache).</li>
+</ul>
+
+<h2>11 · Gotchas (all learned live)</h2>
+<ul>
+<li><b>PyPI 0.3.20 ≠ GitHub main.</b> Installed API = <code>/v1/systemone</code> + <code>/health</code> only. No <code>/predict</code>, no <code>max_len</code> over HTTP.</li>
+<li><code>laya-serve --help</code> boots the server (5 GB RAM, binds nothing useful) — config is env-vars only.</li>
+<li><code>HF_HUB_OFFLINE=1</code> works because checkpoints are preloaded — preload any new checkpoint manually first.</li>
+<li>Install order matters: CPU-only torch wheel <i>first</i>, then <code>laya[serve]</code> (saves ~5 GB of CUDA).</li>
+<li>Zero-shot criteria judgments are mediocre on SOC specifics (documented in LAYA-SETUP.md §4) — structure is right, accuracy comes from good criteria + the Phase 4 finetune. Don't gate on accuracy before both land.</li>
+</ul>
+
+<h2>12 · What NOT to use it for</h2>
+<p>Anything needing generated text: narrations, replies, incident summaries — that's gemma's job (Laya can only gate <i>whether</i> narration runs). Also anything with an objective rule (severity from level = dict lookup) — spending a model on a deterministic mapping is wasted work you'll have to un-do later.</p>
+
+<p class="fine">Sources: docs/LAYA-SETUP.md · evals/laya_questions.yaml · /opt/soc-openclaw/lib/laya_shadow.py (edge host) · docs/laya-baseline.md · 452-decision soak, 2026-09-27. Companion: REPORT-LAYA-300-POWER-20260927.html (same server).</p>
+</div></body></html>

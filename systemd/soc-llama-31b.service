@@ -1,0 +1,12 @@
+[Unit]
+Description=llama-server gemma-4-31b SOC (21402)
+After=network-online.target
+
+[Service]
+ExecStart=/home/operator/llama.cpp/build/bin/llama-server -m /home/operator/models/gemma-4-31B-it-Q3_K_M.gguf --alias gemma-4-31b-it-q3km --host 0.0.0.0 --port 21402 --ctx-size 131072 --parallel 1 --cache-type-k q4_0 --cache-type-v q4_0 -ngl 999 --flash-attn auto --jinja --metrics
+Restart=always
+RestartSec=5
+Environment=HOME=/home/operator
+
+[Install]
+WantedBy=default.target

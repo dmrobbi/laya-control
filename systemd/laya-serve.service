@@ -1,0 +1,23 @@
+[Unit]
+Description=Laya decision server (SOC System-1 decisions, CPU, loopback-only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/home/operator/laya/.venv/bin/laya-serve
+Environment=HF_HOME=/home/operator/laya/hf-cache
+Environment=LAYA_HOST=127.0.0.1
+Environment=LAYA_PORT=8099
+Environment=LAYA_DEVICE=cpu
+Environment=LAYA_PRELOAD=1
+Environment=LAYA_MODELS=english,multilingual,typed-decisions
+Environment=LAYA_THREADS=8
+Environment=LAYA_LOG_LEVEL=info
+# SECURITY: loopback-only while LAYA_API_KEY is unset.
+# If LAYA_HOST is ever changed beyond 127.0.0.1, set LAYA_API_KEY first.
+Environment=HF_HUB_OFFLINE=1
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,26 @@
+{
+  "model": "typed-decisions",
+  "n": 616,
+  "latency_ms": {
+    "p50": 913.7397347949445,
+    "mean": 917.9414669029088
+  },
+  "questions": {
+    "severity": {
+      "acc": 0.269,
+      "n": 616
+    }
+  },
+  "confusions": {
+    "severity": {
+      "low->high": 217,
+      "medium->high": 94,
+      "medium->medium": 92,
+      "low->medium": 74,
+      "high->high": 74,
+      "high->medium": 46,
+      "low->informational": 9,
+      "medium->informational": 7
+    }
+  }
+}

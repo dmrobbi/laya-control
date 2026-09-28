@@ -1,0 +1,26 @@
+{
+  "model": "english",
+  "n": 616,
+  "latency_ms": {
+    "p50": 947.2913797944784,
+    "mean": 1003.6091164635893
+  },
+  "questions": {
+    "severity": {
+      "acc": 0.198,
+      "n": 616
+    }
+  },
+  "confusions": {
+    "severity": {
+      "low->informational": 167,
+      "high->informational": 106,
+      "medium->high": 66,
+      "medium->medium": 66,
+      "low->high": 64,
+      "low->low": 56,
+      "medium->low": 38,
+      "medium->informational": 26
+    }
+  }
+}

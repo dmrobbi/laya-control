@@ -1,0 +1,183 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Laya + SOC — Demo: Setup, Install, Configure, Validate</title>
+<style>
+  body { background:#0d1117; color:#e6edf3; font:14px/1.55 -apple-system,Segoe UI,Roboto,sans-serif; margin:0; }
+  .wrap { max-width:1000px; margin:0 auto; padding:28px 20px 60px; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:38px 0 10px; border-bottom:1px solid #30363d; padding-bottom:6px;}
+  h3 { font-size:14px; margin:20px 0 6px; color:#58a6ff;}
+  .sub { color:#8b949e; font-size:12.5px; margin-bottom:20px; }
+  table { border-collapse:collapse; width:100%; margin:12px 0; font-size:12.5px; }
+  th,td { text-align:left; padding:7px 10px; border:1px solid #30363d; vertical-align:top; }
+  th { background:#161b22; font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; color:#8b949e; }
+  pre { background:#0a0d12; border:1px solid #30363d; border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:12px; line-height:1.55; font-family:ui-monospace,Menlo,monospace; }
+  pre .c { color:#8b949e; } pre .k { color:#d29922; } pre .g { color:#3fb950; } pre .b { color:#58a6ff; } pre .r { color:#f85149; }
+  code { background:#0a0d12; border:1px solid #30363d; border-radius:4px; padding:1px 5px; font-size:12px; font-family:ui-monospace,Menlo,monospace; }
+  .ok { color:#3fb950; font-weight:600; }
+  .warnbox { border-left:3px solid #d29922; padding:8px 12px; background:#241c0e; border-radius:0 8px 8px 0; margin:10px 0; font-size:12.5px; }
+  ul { margin:8px 0; padding-left:20px; } li { margin:4px 0; }
+  .fine { font-size:11px; color:#8b949e; }
+</style></head><body><div class="wrap">
+<h1>🧪 Laya + SOC — Demo: setup → install → configure → validate</h1>
+<div class="sub">2026-09-27 · end-to-end walkthrough of the deployed pattern (laya 0.3.20) · every expected output below is real, measured on this stack</div>
+
+<h2>0 · What you'll build</h2>
+<svg viewBox="0 0 940 240" role="img" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><title>Topology</title><rect x="20" y="50" width="190" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="blue" stroke-width="1"/><text x="115.0" y="68" font-size="11" fill="blue" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">wazuh alerts / email</text><text x="115.0" y="84" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">~480 alerts/day</text><rect x="250" y="50" width="230" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="blue" stroke-width="1"/><text x="365.0" y="68" font-size="11" fill="blue" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">realtime_ingest :8765</text><text x="365.0" y="84" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">+ imap-watcher (edge host)</text><rect x="520" y="50" width="180" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="good" stroke-width="1"/><text x="610.0" y="68" font-size="11" fill="good" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">laya-serve :8099</text><text x="610.0" y="84" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">CPU · 3 ckpts · loopback</text><rect x="520" y="160" width="180" height="60" rx="6" fill="#161b22" opacity="1.0" stroke="purple" stroke-width="1"/><text x="610.0" y="178" font-size="11" fill="purple" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">laya-shadow.jsonl</text><text x="610.0" y="194" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">log-only · LLM wins</text><rect x="740" y="50" width="180" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="warn" stroke-width="1"/><text x="830.0" y="68" font-size="11" fill="warn" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">SOC routing</text><text x="830.0" y="84" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">unchanged in shadow</text><line x1="210" y1="90" x2="250" y2="90" stroke="#8b949e" stroke-width="1.6"/><polygon points="250,90 243,86 243,94" fill="#8b949e"/><line x1="480" y1="90" x2="520" y2="90" stroke="#8b949e" stroke-width="1.6"/><polygon points="520,90 513,86 513,94" fill="#8b949e"/><line x1="700" y1="90" x2="740" y2="90" stroke="#8b949e" stroke-width="1.6"/><polygon points="740,90 733,86 733,94" fill="#8b949e"/><line x1="610" y1="110" x2="610" y2="160" stroke="#bc8cff" stroke-width="1.6"/><polygon points="610,160 603,156 603,164" fill="#bc8cff"/><text x="622" y="140" font-size="9" fill="#bc8cff" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">log-only</text><rect x="20" y="160" width="230" height="60" rx="6" fill="#161b22" opacity="1.0" stroke="good" stroke-width="1"/><text x="135.0" y="178" font-size="11" fill="good" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">LAYA_MODE env flag</text><text x="135.0" y="194" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">off | shadow | gated</text><line x1="235" y1="190" x2="560" y2="190" stroke="#8b949e" stroke-width="1.6"/><polygon points="560,190 553,186 553,194" fill="#8b949e"/><text x="330" y="184" font-size="9" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">controls the hook</text><text x="20" y="30" font-size="13" fill="#e6edf3" text-anchor="start" font-weight="bold" font-family="ui-monospace,Menlo,monospace">What this demo builds: shadow-mode Laya beside the live SOC — gemma path untouched</text></svg>
+<p>A decision sidecar beside the live SOC: <b>gemma keeps deciding</b> (shadow mode), Laya answers the same
+questions and logs everything to <code>laya-shadow.jsonl</code>. After the soak gate passes, a one-line env flip
+moves decisions to Laya with confidence-gated fallback. Total footprint: 4.7 GB RAM on each host, zero GPU.</p>
+
+<h2>1 · Setup — what you need before touching anything</h2>
+<table>
+<tr><th>Item</th><th>Value used here</th><th>Why</th></tr>
+<tr><td>Host 1 (serve + control)</td><td>control host (16 logical cores, 109 GB RAM)</td><td>repo, evals, source of truth</td></tr>
+<tr><td>Host 2 (decision traffic)</td><td>edge host (runs wazuh + ingest + mail)</td><td>Laya must sit next to its callers (loopback-only)</td></tr>
+<tr><td>Python</td><td>≥3.10 (3.12.3 used)</td><td>venv per host</td></tr>
+<tr><td>Ports</td><td>8099 (laya-serve, loopback) · 8765 (ingest, edge host)</td><td>8000 default avoided on purpose</td></tr>
+<tr><td>Disk</td><td>~5 GB venv + 2.3 GB checkpoints</td><td>CPU torch wheel saves ~5 GB</td></tr>
+<tr><td>Network</td><td>HF reachable <i>once</i> (preload), offline after</td><td><code>HF_HUB_OFFLINE=1</code> at runtime</td></tr>
+</table>
+<div class="warnbox"><b>Decision to make up front:</b> which questions each part answers (the question set) and where its truth comes from
+(deterministic rule vs LLM verdict). The SOC contract lives in <code>soc-agents/soc-triage/IDENTITY.md</code>. If you can't state
+the decision contract in one sentence, don't wire the hook yet.</div>
+
+<h2>2 · Install (control host first, then replicate)</h2>
+<h3>2.1 venv + CPU torch + laya — order matters</h3>
+<pre>python3 -m venv /home/operator/laya/.venv
+/home/operator/laya/.venv/bin/python -m pip install --upgrade pip
+<span class="c"># CPU-only torch FIRST (PyPI default pulls multi-GB CUDA):</span>
+/home/operator/laya/.venv/bin/python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+/home/operator/laya/.venv/bin/python -m pip install <span class="g">"laya[serve]"</span>
+<span class="c"># verify</span>
+/home/operator/laya/.venv/bin/python -I -c <span class="g">"import laya; print(laya.__version__)"</span>   <span class="c"># → 0.3.20</span></pre>
+<h3>2.2 Preload checkpoints (needs HF network this once)</h3>
+<pre>export HF_HOME=/home/operator/laya/hf-cache
+/home/operator/laya/.venv/bin/python -c <span class="g">"from laya import Router; Router(preload=True)"</span>
+<span class="c"># → all 3 checkpoints (english, multilingual, typed-decisions), 2.3 GB total</span></pre>
+<h3>2.3 systemd user unit</h3>
+<pre><span class="c"># ~/.config/systemd/user/laya-serve.service (full text: laya-control/systemd/)</span>
+systemctl --user daemon-reload
+systemctl --user enable --now laya-serve.service
+journalctl --user -u laya-serve -f        <span class="c"># expect: "3 models loaded" then uvicorn on 127.0.0.1:8099</span></pre>
+<h3>2.4 Replicate to edge host (proven cross-host rsync)</h3>
+<pre>rsync -a /home/operator/laya edge host:/home/operator/laya        <span class="c"># ~3.5 GB incl venv — same abs paths, python 3.12 both</span>
+scp ~/.config/systemd/user/laya-serve.service edge host:~/.config/systemd/user/
+ssh edge host 'sed -i "s/LAYA_THREADS=8/LAYA_THREADS=6/" ~/.config/systemd/user/laya-serve.service'  <span class="c"># edge host has 6 usable threads</span>
+ssh edge host 'systemctl --user daemon-reload && systemctl --user enable --now laya-serve && loginctl enable-linger operator'</pre>
+<p class="fine">linger matters — user units die at logout without it. edge host system services need <code>sudo</code>; laya-serve is a user unit (mixed model, that's fine).</p>
+
+<h2>3 · Configure</h2>
+<h3>3.1 laya-serve (env-vars only — no CLI flags exist)</h3>
+<table>
+<tr><th>Env</th><th>Value</th><th>Note</th></tr>
+<tr><td>LAYA_HOST / LAYA_PORT</td><td>127.0.0.1 / 8099</td><td>loopback-only; set <b>LAYA_API_KEY before ever exposing</b></td></tr>
+<tr><td>LAYA_DEVICE</td><td>cpu</td><td></td></tr>
+<tr><td>LAYA_PRELOAD</td><td>1</td><td>all 3 ckpts at boot, 4.7 GB RAM</td></tr>
+<tr><td>LAYA_THREADS</td><td>8 (control host) / 6 (edge host)</td><td>≤ physical cores, oversubscription regresses hard</td></tr>
+<tr><td>LAYA_AUTO_TASK</td><td>0</td><td>explicit routing, not auto</td></tr>
+<tr><td>HF_HOME / HF_HUB_OFFLINE</td><td>/home/operator/laya/hf-cache / 1</td><td>offline works only <i>after</i> preload (§2.2)</td></tr>
+</table>
+<h3>3.2 Flip the SOC services into shadow mode</h3>
+<pre><span class="c"># edge host — one line each, created if absent (that's why the first test logged nothing!)</span>
+sudo -n tee /etc/default/realtime-soc-server &lt;&lt;'EOF'
+# Laya shadow mode (Phase 1): off|shadow|gated. shadow = log-only, LLM verdict still wins.
+LAYA_MODE=shadow
+EOF
+sudo -n tee /etc/default/imap-watcher &lt;&lt;'EOF'
+# Laya shadow mode (Phase 1): off|shadow|gated. shadow = log-only, mail routing unchanged.
+LAYA_MODE=shadow
+EOF
+<span class="c"># restart the system units (sudo) and verify</span>
+sudo -n systemctl restart realtime-soc-server imap-watcher
+ssh edge host 'grep LAYA /etc/default/realtime-soc-server /etc/default/imap-watcher'</pre>
+<h3>3.3 The hooks (code side — deploy once, they're in prod)</h3>
+<pre><span class="c"># shadow client: /opt/soc-openclaw/lib/laya_shadow.py (stdlib-only, never raises)</span>
+<span class="c"># hook 1: realtime_ingest.ingest_wazuh_alert  → 4 triage questions (v1.1: 3 + deterministic severity)</span>
+<span class="c"># hook 2: imap-watcher._process_one          → 3 email questions</span>
+<span class="c"># backups before every patch: file.bak-laya-YYYYMMDD · py_compile after every edit · RESTART then verify</span></pre>
+<p class="fine">Rule learned twice: <b>patch → compile → restart → verify</b>. An E2E test against a stale process looks like a failure that isn't one.</p>
+
+<h2>3.4 What the deployed wiring looks like</h2>
+<svg viewBox="0 0 940 240" role="img" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><title>Topology</title><rect x="20" y="50" width="190" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="blue" stroke-width="1"/><text x="115.0" y="68" font-size="11" fill="blue" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">wazuh alerts / email</text><text x="115.0" y="84" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">~480 alerts/day</text><rect x="250" y="50" width="230" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="blue" stroke-width="1"/><text x="365.0" y="68" font-size="11" fill="blue" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">realtime_ingest :8765</text><text x="365.0" y="84" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">+ imap-watcher (edge host)</text><rect x="520" y="50" width="180" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="good" stroke-width="1"/><text x="610.0" y="68" font-size="11" fill="good" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">laya-serve :8099</text><text x="610.0" y="84" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">CPU · 3 ckpts · loopback</text><rect x="520" y="160" width="180" height="60" rx="6" fill="#161b22" opacity="1.0" stroke="purple" stroke-width="1"/><text x="610.0" y="178" font-size="11" fill="purple" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">laya-shadow.jsonl</text><text x="610.0" y="194" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">log-only · LLM wins</text><rect x="740" y="50" width="180" height="80" rx="6" fill="#161b22" opacity="1.0" stroke="warn" stroke-width="1"/><text x="830.0" y="68" font-size="11" fill="warn" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">SOC routing</text><text x="830.0" y="84" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">unchanged in shadow</text><line x1="210" y1="90" x2="250" y2="90" stroke="#8b949e" stroke-width="1.6"/><polygon points="250,90 243,86 243,94" fill="#8b949e"/><line x1="480" y1="90" x2="520" y2="90" stroke="#8b949e" stroke-width="1.6"/><polygon points="520,90 513,86 513,94" fill="#8b949e"/><line x1="700" y1="90" x2="740" y2="90" stroke="#8b949e" stroke-width="1.6"/><polygon points="740,90 733,86 733,94" fill="#8b949e"/><line x1="610" y1="110" x2="610" y2="160" stroke="#bc8cff" stroke-width="1.6"/><polygon points="610,160 603,156 603,164" fill="#bc8cff"/><text x="622" y="140" font-size="9" fill="#bc8cff" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">log-only</text><rect x="20" y="160" width="230" height="60" rx="6" fill="#161b22" opacity="1.0" stroke="good" stroke-width="1"/><text x="135.0" y="178" font-size="11" fill="good" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">LAYA_MODE env flag</text><text x="135.0" y="194" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">off | shadow | gated</text><line x1="235" y1="190" x2="560" y2="190" stroke="#8b949e" stroke-width="1.6"/><polygon points="560,190 553,186 553,194" fill="#8b949e"/><text x="330" y="184" font-size="9" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">controls the hook</text><text x="20" y="30" font-size="13" fill="#e6edf3" text-anchor="start" font-weight="bold" font-family="ui-monospace,Menlo,monospace">What this demo builds: shadow-mode Laya beside the live SOC — gemma path untouched</text></svg>
+
+<h2>4 · Validate — the ladder</h2>
+<svg viewBox="0 0 940 170" role="img" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto"><title>Validation flow</title><rect x="10" y="40" width="160" height="70" rx="6" fill="#161b22" opacity="1.0" stroke="#3fb950" stroke-width="1"/><text x="90" y="62" font-size="12" fill="#3fb950" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">V1</text><text x="90" y="82" font-size="10.5" fill="#e6edf3" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">/health</text><text x="90" y="98" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">both hosts</text><rect x="160" y="40" width="160" height="70" rx="6" fill="#161b22" opacity="1.0" stroke="#3fb950" stroke-width="1"/><text x="240" y="62" font-size="12" fill="#3fb950" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">V2</text><text x="240" y="82" font-size="10.5" fill="#e6edf3" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">predict smoke</text><text x="240" y="98" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">curl + 0.5 s</text><rect x="310" y="40" width="160" height="70" rx="6" fill="#161b22" opacity="1.0" stroke="#3fb950" stroke-width="1"/><text x="390" y="62" font-size="12" fill="#3fb950" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">V3</text><text x="390" y="82" font-size="10.5" fill="#e6edf3" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">ingest E2E</text><text x="390" y="98" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">shadow row</text><rect x="460" y="40" width="160" height="70" rx="6" fill="#161b22" opacity="1.0" stroke="#3fb950" stroke-width="1"/><text x="540" y="62" font-size="12" fill="#3fb950" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">V4</text><text x="540" y="82" font-size="10.5" fill="#e6edf3" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">count grows</text><text x="540" y="98" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">shadow_count</text><rect x="610" y="40" width="160" height="70" rx="6" fill="#161b22" opacity="1.0" stroke="#3fb950" stroke-width="1"/><text x="690" y="62" font-size="12" fill="#3fb950" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">V5</text><text x="690" y="82" font-size="10.5" fill="#e6edf3" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">agreement</text><text x="690" y="98" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">cron 05:55</text><rect x="760" y="40" width="160" height="70" rx="6" fill="#161b22" opacity="1.0" stroke="#3fb950" stroke-width="1"/><text x="840" y="62" font-size="12" fill="#3fb950" text-anchor="middle" font-weight="True" font-family="ui-monospace,Menlo,monospace">V6</text><text x="840" y="82" font-size="10.5" fill="#e6edf3" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">watchdog</text><text x="840" y="98" font-size="9" fill="#8b949e" text-anchor="middle" font-weight="normal" font-family="ui-monospace,Menlo,monospace">probes ok</text><line x1="170" y1="75" x2="170" y2="75" stroke="#8b949e" stroke-width="1.6"/><polygon points="170,75 163,71 163,79" fill="#8b949e"/><line x1="320" y1="75" x2="320" y2="75" stroke="#8b949e" stroke-width="1.6"/><polygon points="320,75 313,71 313,79" fill="#8b949e"/><line x1="470" y1="75" x2="470" y2="75" stroke="#8b949e" stroke-width="1.6"/><polygon points="470,75 463,71 463,79" fill="#8b949e"/><line x1="620" y1="75" x2="620" y2="75" stroke="#8b949e" stroke-width="1.6"/><polygon points="620,75 613,71 613,79" fill="#8b949e"/><line x1="770" y1="75" x2="770" y2="75" stroke="#8b949e" stroke-width="1.6"/><polygon points="770,75 763,71 763,79" fill="#8b949e"/><line x1="172" y1="75" x2="198" y2="75" stroke="#8b949e" stroke-width="1.6"/><polygon points="198,75 191,71 191,79" fill="#8b949e"/><line x1="322" y1="75" x2="348" y2="75" stroke="#8b949e" stroke-width="1.6"/><polygon points="348,75 341,71 341,79" fill="#8b949e"/><line x1="472" y1="75" x2="498" y2="75" stroke="#8b949e" stroke-width="1.6"/><polygon points="498,75 491,71 491,79" fill="#8b949e"/><line x1="622" y1="75" x2="648" y2="75" stroke="#8b949e" stroke-width="1.6"/><polygon points="648,75 641,71 641,79" fill="#8b949e"/><line x1="772" y1="75" x2="798" y2="75" stroke="#8b949e" stroke-width="1.6"/><polygon points="798,75 791,71 791,79" fill="#8b949e"/><text x="10" y="140" font-size="13" fill="#e6edf3" text-anchor="start" font-weight="bold" font-family="ui-monospace,Menlo,monospace">Validation ladder — each step has a concrete expected output; stop and fix if it deviates</text><text x="10" y="158" font-size="9.5" fill="#8b949e" text-anchor="start" font-weight="normal" font-family="ui-monospace,Menlo,monospace">V7 = gate criteria (≥300 unique, agreement ≥ threshold) · V8 = rollback drill (LAYA_MODE=off)</text></svg>
+<h3>V1 — health, both hosts</h3>
+<pre>curl -s http://127.0.0.1:8099/health
+<span class="g">{"status":"ok","loaded":["english","multilingual","typed-decisions"],"device":"cpu"}</span></pre>
+<h3>V2 — direct predict (the smoke)</h3>
+<pre>curl -s http://127.0.0.1:8099/v1/systemone -H 'content-type: application/json' -d '{"state":
+ "Alert: repeated failed SSH logins from 192.0.2.5 targeting prod-01 root over 3 minutes.
+  fail2ban banned the source IP. No successful logins observed.",
+ "questions": {"alert_class": {"type":"choice","instructions":"What kind of event is this?",
+   "criteria":{"bruteforce":"repeated auth failures","malware":"malicious code executed",
+               "benign":"routine noise","other":"anything else"}},
+   "urgency": {"type":"score","criteria":["not urgent","soon","critical"]},
+   "auto_close": {"type":"noul","instructions":"Safe to auto-close?"}}}'
+<span class="c"># expected: full answers object, routing.model set, usage.input_tokens ≤ 512</span>
+<span class="c"># latency: ~0.5 s round-trip for 3 questions (measured 0.49 s)</span></pre>
+<h3>V3 — end-to-end through the real ingest (edge host)</h3>
+<pre>curl -s -X POST http://127.0.0.1:8765/ingest -H 'content-type: application/json' -d '{
+ "rule":{"id":5710,"level":12,"description":"Multiple authentication failures."},
+ "agent":{"name":"web-01"},
+ "data":{"srcip":"1.2.3.4"},
+ "decoder":{"name":"sshd"},"location":"/var/log/auth.log"}'
+<span class="c"># expected (Option B behavior):</span>
+<span class="g">  level parsed nested → severity high · NO gemma turn · ingest ≈1.65 s</span>
+<span class="c"># then confirm the shadow row:</span>
+ssh edge host 'tail -1 /opt/soc-openclaw/data/laya-shadow.jsonl | python3 -m json.tool'
+<span class="c"># expect: answers.severity/response/escalate/known_pattern + latency_ms ~900 + context.level:12</span></pre>
+<h3>V4 — shadow data grows</h3>
+<pre>ssh edge host 'python3 /opt/soc-openclaw/lib/shadow_count.py'
+<span class="c"># counts real (non-SELFTEST) decisions → was 3 → 561 raw / 452 unique over ~24 h organic traffic</span></pre>
+<h3>V5 — agreement job (cron 05:55 UTC, run manually first)</h3>
+<pre>ssh edge host 'python3 /opt/soc-openclaw/lib/laya_agreement.py | tail -3'
+<span class="c"># expected:  escalate_vs_ingest  agreement 0.946 (n=443+)   lat_mean ~1100 ms</span>
+<span class="c"># output file: /opt/soc-openclaw/data/laya-agreement-latest.json</span></pre>
+<h3>V6 — watchdog</h3>
+<pre><span class="c"># soc-llm-watchdog cron (10 min) probes laya-serve on BOTH hosts + shadow-log staleness (&gt;6h = BROKEN)</span>
+<span class="c"># expect: UNCHANGED (healthy) — and a BROKEN page if you kill laya-serve (that's the alarm working)</span></pre>
+<h3>V7 — gate criteria (before flipping LAYA_MODE=gated)</h3>
+<table>
+<tr><th>Criterion</th><th>Threshold</th><th>Measured 2026-09-27</th></tr>
+<tr><td>Unique shadow decisions</td><td>≥300</td><td class="ok">452 ✓</td></tr>
+<tr><td>escalate agreement vs ingest rule</td><td>≥0.90</td><td class="ok">0.946 live · 0.979 nightly</td></tr>
+<tr><td>known_pattern confidence band</td><td>stable</td><td class="ok">0.68–0.74, p10–p90</td></tr>
+<tr><td>response question</td><td>gateable conf</td><td class="r">p50 0.04 → stays shadowed until finetune</td></tr>
+</table>
+<h3>V8 — rollback drill (do it once before you trust it)</h3>
+<pre>ssh edge host 'sudo -n sed -i s/LAYA_MODE=shadow/LAYA_MODE=off/ /etc/default/realtime-soc-server'
+ssh edge host 'sudo -n systemctl restart realtime-soc-server'
+<span class="c"># POST an alert → ingest works, NO new shadow row, routing unchanged (deterministic sev + incidents)</span>
+<span class="c"># then restore: LAYA_MODE=shadow (or gated) + restart + tail the shadow log to confirm resumed</span></pre>
+
+<h2>5 · The 2-minute demo script (show anyone)</h2>
+<pre><span class="c"># 1. it's alive:</span>          curl -s http://127.0.0.1:8099/health | jq .status          <span class="g"># "ok"</span>
+<span class="c"># 2. it decides fast:</span>    time curl -s …/v1/systemone -d @demo-alert.json            <span class="g"># ~0.5-1.1 s</span>
+<span class="c"># 3. it's wired in:</span>      POST :8765/ingest demo-alert.json → tail -1 laya-shadow.jsonl
+<span class="c"># 4. gemma is untouched:</span> grep -c gemma /home/operator/logs/realtime-soc-server.log | tail -1   <span class="g"># no new turns</span>
+<span class="c"># 5. the numbers:</span>        cat /opt/soc-openclaw/data/laya-agreement-latest.json       <span class="g"># 0.946</span></pre>
+
+<h2>6 · Troubleshooting (the hits, ranked by pain)</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>Shadow log stays empty after a test</td><td><code>/etc/default/&lt;svc&gt;</code> missing or not read</td><td>Create the file, <b>restart the unit</b>, verify with <code>systemctl show -p Environment</code></td></tr>
+<tr><td>E2E "fails" but code is right</td><td>Forgot the restart after patch</td><td>patch → <code>py_compile</code> → restart → verify (always in that order)</td></tr>
+<tr><td>laya-serve won't start after adding a ckpt</td><td><code>HF_HUB_OFFLINE=1</code> + not preloaded</td><td>Preload manually first (§2.2), then restart</td></tr>
+<tr><td>Inference suddenly slow</td><td>Threads oversubscribed / concurrent pollers on single worker</td><td><code>LAYA_THREADS</code> ≤ physical cores; queue is by design</td></tr>
+<tr><td><code>laya-serve --help</code> "hangs" with 5 GB RAM</td><td>It's not --help — it booted the server</td><td>Ctrl-C, configure via env vars in the unit</td></tr>
+<tr><td>Confidence looks uncalibrated for some choice</td><td><code>choice:11+</code> bin ships out-of-range temp (0.5)</td><td>Expected until Phase 4 calibration re-fit</td></tr>
+</table>
+
+<h2>7 · Files this demo touches (complete map)</h2>
+<table>
+<tr><th>File</th><th>What</th></tr>
+<tr><td><code>/home/operator/laya/</code></td><td>venv + HF cache (both hosts, rsync-cloned)</td></tr>
+<tr><td><code>~/.config/systemd/user/laya-serve.service</code></td><td>the service (both hosts; mirrored in laya-control/systemd/)</td></tr>
+<tr><td><code>/etc/default/realtime-soc-server</code> + <code>/etc/default/imap-watcher</code></td><td><code>LAYA_MODE</code> switches (edge host)</td></tr>
+<tr><td><code>/opt/soc-openclaw/lib/laya_shadow.py</code></td><td>shadow client + question sets (edge host)</td></tr>
+<tr><td><code>/opt/soc-openclaw/data/laya-shadow.jsonl</code></td><td>the decision log (gitignored, backed up to GitLab data snapshot)</td></tr>
+<tr><td><code>~/laya-control/evals/</code></td><td>question-set YAML, baselines, agreement + tracker scripts</td></tr>
+</table>
+<p class="fine">Companions: LAYA-USAGE-GUIDE.html (how to call it) · REPORT-LAYA-300-POWER-20260927.html (why: numbers) · LAYA-SETUP.md (deep install detail). Sources: all steps above executed and verified 2026-09-26/27; expected outputs are captured real values.</p>
+</div></body></html>

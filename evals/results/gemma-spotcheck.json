@@ -1,0 +1,326 @@
+{
+ "n": 23,
+ "endpoint": "http://127.0.0.1:15108/v1/chat/completions",
+ "rows": [
+  {
+   "state": "L12 5763 agent=mail.example.com",
+   "expected": {
+    "severity": "high",
+    "response": "email",
+    "known_pattern": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 20.5
+  },
+  {
+   "state": "L12 5763 agent=mail.example.com",
+   "expected": {
+    "severity": "high",
+    "response": "email",
+    "known_pattern": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 19.5
+  },
+  {
+   "state": "{\"message\":\"ALERT: rule 40112 on darth from 198.51.100.2, level 12, brute-force-then-success pattern. Return ONE JSON object only.\",\"prompt\":null,\"system\":null}",
+   "expected": {
+    "severity": "high",
+    "response": "page",
+    "known_pattern": true,
+    "escalate": false
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 17.7
+  },
+  {
+   "state": "{\"message\":\"ALERT: rule 40112 on darth from 198.51.100.2, level 12, brute-force-then-success pattern.\\n\\nBefore drafting your Decision, you MUST call mcp__soc_memory.memory_search to check for prior incidents with this host/srcip/rule. Then return ONE JSON object only with severity_class, is_known_pattern, recommended_response, confidence, reasoning, low_confidence.\\n\\nIf memory_search returned prior matches, cite them in reasoning. The prior incident inc-2024-darth-brute is from a similar pattern...[truncated]",
+   "expected": {
+    "severity": "high",
+    "response": "page",
+    "known_pattern": true,
+    "escalate": false
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 22.4
+  },
+  {
+   "state": "L12 100102 agent=vader",
+   "expected": {
+    "severity": "high",
+    "response": "page",
+    "known_pattern": false,
+    "escalate": false
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 25.1
+  },
+  {
+   "state": "L12 100102 agent=vader",
+   "expected": {
+    "severity": "high",
+    "response": "page",
+    "known_pattern": false,
+    "escalate": false
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 18.4
+  },
+  {
+   "state": "L12 100102 agent=vader",
+   "expected": {
+    "severity": "high",
+    "response": "page",
+    "known_pattern": false,
+    "escalate": false
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 18.1
+  },
+  {
+   "state": "L12 100102 agent=vader",
+   "expected": {
+    "severity": "high",
+    "response": "page",
+    "known_pattern": false,
+    "escalate": false
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 15.7
+  },
+  {
+   "state": "L12 40112 agent=darth",
+   "expected": {
+    "severity": "high",
+    "response": "page",
+    "known_pattern": true,
+    "escalate": false
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 22.6
+  },
+  {
+   "state": "L12 40112 agent=darth",
+   "expected": {
+    "severity": "high",
+    "response": "page",
+    "known_pattern": true,
+    "escalate": false
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 20.1
+  },
+  {
+   "state": "L? ? agent=?",
+   "expected": {
+    "severity": "informational",
+    "response": "note_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "informational",
+    "response": "note_only"
+   },
+   "latency_s": 24.8
+  },
+  {
+   "state": "L? ? agent=?",
+   "expected": {
+    "severity": "informational",
+    "response": "note_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "informational",
+    "response": "note_only"
+   },
+   "latency_s": 22.6
+  },
+  {
+   "state": "L? ? agent=?",
+   "expected": {
+    "severity": "informational",
+    "response": "note_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "informational",
+    "response": "note_only"
+   },
+   "latency_s": 22.5
+  },
+  {
+   "state": "L12 5710 agent=darth",
+   "expected": {
+    "severity": "medium",
+    "response": "email",
+    "known_pattern": false,
+    "escalate": false
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 14.0
+  },
+  {
+   "state": "L12 100300 agent=evgen-a",
+   "expected": {
+    "severity": "medium",
+    "response": "digest_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 22.7
+  },
+  {
+   "state": "L12 100300 agent=evgen-a",
+   "expected": {
+    "severity": "medium",
+    "response": "digest_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 25.5
+  },
+  {
+   "state": "L12 100300 agent=evgen-a",
+   "expected": {
+    "severity": "medium",
+    "response": "digest_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 19.9
+  },
+  {
+   "state": "L12 100300 agent=evgen-a",
+   "expected": {
+    "severity": "medium",
+    "response": "digest_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 33.2
+  },
+  {
+   "state": "L12 100300 agent=evgen-a",
+   "expected": {
+    "severity": "medium",
+    "response": "digest_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 17.5
+  },
+  {
+   "state": "L12 100300 agent=evgen-a",
+   "expected": {
+    "severity": "medium",
+    "response": "digest_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 20.5
+  },
+  {
+   "state": "L12 100300 agent=evgen-a",
+   "expected": {
+    "severity": "medium",
+    "response": "digest_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 19.2
+  },
+  {
+   "state": "L12 100300 agent=control host",
+   "expected": {
+    "severity": "medium",
+    "response": "digest_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 19.7
+  },
+  {
+   "state": "L12 100300 agent=control host",
+   "expected": {
+    "severity": "medium",
+    "response": "digest_only",
+    "known_pattern": false,
+    "escalate": true
+   },
+   "gemma": {
+    "severity": "high",
+    "response": "page"
+   },
+   "latency_s": 18.0
+  }
+ ]
+}

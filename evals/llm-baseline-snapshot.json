@@ -1,0 +1,19 @@
+{
+  "captured_utc": "2026-09-26T15:36:00Z",
+  "llm_stack_state": {
+    "soc_power": "off (operator, since 2026-09-26 01:49 UTC)",
+    "gateway": "inactive (failed on power-off)",
+    "llama_cpp": "ACTIVE on GPU host despite power=off — INCONSISTENT with designed /power/off sequence; 15.1GB VRAM loaded each GPU; llama.cpp /metrics counters reset to 0 (recent restart) so counters are NOT a usable baseline source",
+    "note": "flagged to operator; power switch untouched by laya work"
+  },
+  "llm_turn_volume_30d_from_audit_log": {
+    "window": "2026-08-26..2026-09-24 (27 data days)",
+    "totals": {"soc-ticket-creator": 2944, "soc-triage": 959, "soc-narrator": 957, "soc-stig-remediate": 227, "soc-stig-classifier": 134},
+    "avg_per_day": {"soc-ticket-creator": 109.0, "soc-triage": 35.5, "soc-narrator": 35.4, "soc-stig-remediate": 8.4, "soc-stig-classifier": 5.0}
+  },
+  "laya_phase2_targets": {
+    "part1_ingest": "triage+narrator turns (~71/day combined) = shadowable decision surface",
+    "note": "ticket-creator dominates volume but its audit rows carry empty model_output (tool-only) — verify its LLM usage before counting it as Laya-offloadable"
+  },
+  "shadow_rows_collected": 3
+}

@@ -1,0 +1,67 @@
+{
+  "model": "typed-decisions",
+  "dataset": "soc-triage-v0.jsonl",
+  "n_rows": 68,
+  "latency_ms": {
+    "p50": 372,
+    "p95": 389,
+    "mean": 385
+  },
+  "questions": {
+    "escalate": {
+      "accuracy": 0.182,
+      "n": 66,
+      "mean_confidence": 0.627
+    },
+    "known_pattern": {
+      "accuracy": 0.897,
+      "n": 68,
+      "mean_confidence": 0.79
+    },
+    "response": {
+      "accuracy": 0.588,
+      "n": 68,
+      "mean_confidence": 0.29
+    },
+    "severity": {
+      "accuracy": 0.559,
+      "n": 68,
+      "mean_confidence": 0.318
+    }
+  },
+  "majority_baseline": {
+    "severity": {
+      "majority": "high",
+      "majority_share": 0.5441176470588235
+    },
+    "response": {
+      "majority": "email",
+      "majority_share": 0.4852941176470588
+    },
+    "known_pattern": {
+      "majority": true,
+      "majority_share": 0.8970588235294118
+    },
+    "escalate": {
+      "majority": false,
+      "majority_share": 0.803030303030303
+    }
+  },
+  "confusions": {
+    "severity": {
+      "medium -> medium": 37,
+      "high -> medium": 27,
+      "informational -> low": 3,
+      "high -> high": 1
+    },
+    "response": {
+      "digest_only -> digest_only": 33,
+      "page -> digest_only": 23,
+      "email -> digest_only": 4,
+      "email -> email": 3,
+      "note_only -> note_only": 3,
+      "page -> page": 1,
+      "page -> note_only": 1
+    }
+  }
+}

@@ -1,0 +1,54 @@
+# Laya question sets for the AI SOC (v1, 2026-09-26)
+# Source of truth for semantics: soc-agents/soc-triage/IDENTITY.md (output contract)
+# + realtime_ingest.py (level->severity fallback, escalate rule).
+# Question sets are also embedded in evals/state_builder.py as dicts; this file
+# is the human-readable review surface. Keep both in sync (state_builder has a
+# self-check test against this file).
+
+triage:
+  severity:
+    type: choice
+    instructions: >-
+      Severity class for this Wazuh alert per the SOC contract:
+      informational (rule level 0-2), low (3-7), medium (8-11),
+      high (12-13), critical (14+). Judge from the alert content.
+    criteria:
+      informational: "rule level 0-2; no action; record only"
+      low: "rule level 3-7; minor; batch review"
+      medium: "rule level 8-11; noteworthy; routine analyst review"
+      high: "rule level 12-13; serious; needs prompt attention"
+      critical: "rule level 14+; immediate response"
+  known_pattern:
+    type: noul
+    instructions: "Is this a known, recurring event pattern (seen before, expected in this environment)?"
+  response:
+    type: choice
+    instructions: "Which immediate response does this alert warrant?"
+    criteria:
+      note_only: "log a note only"
+      digest_only: "include in the periodic digest"
+      email: "email the analyst now"
+      page: "notify the analyst immediately (call/pager)"
+      auto_remediate: "apply the known-safe automated remediation"
+  escalate:
+    type: noul
+    instructions: "Should this alert open an incident / reach a human now (high severity or unclear pattern)?"
+
+screen:
+  false_positive:
+    type: noul
+    instructions: "Is this event routine noise or a test/expected action (safe to ignore)?"
+
+# reply / ioc / incident sets land with their parts (Phase 2-3)
+ioc_enrich:
+  reputation:
+    type: choice
+    instructions: "Reputation class for this indicator based on the state text (fleet history, prior incidents, context)."
+    criteria:
+      malicious: "clear evidence of malicious use"
+      suspicious: "some risk signals; needs review"
+      neutral: "benign/known-good"
+      unknown: "no actionable signal"
+  needs_enrichment:
+    type: noul
+    instructions: "Does this indicator warrant external enrichment (e.g. reputation lookup) at all?"

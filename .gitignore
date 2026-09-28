@@ -1,0 +1,3 @@
+evals/data/
+*.pyc
+__pycache__/

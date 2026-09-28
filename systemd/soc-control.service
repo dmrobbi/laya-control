@@ -1,0 +1,12 @@
+[Unit]
+Description=SOC control + llama proxy (control host:15108)
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/operator/.openclaw-soc/soc-control/server.py
+Restart=always
+RestartSec=3
+Environment=HOME=/home/operator
+
+[Install]
+WantedBy=default.target
