@@ -197,7 +197,7 @@
    "latency_s": 14.0
   },
   {
-   "state": "L12 100300 agent=evgen-a",
+   "state": "L12 100300 agent=lab-a",
    "expected": {
     "severity": "medium",
     "response": "digest_only",
@@ -211,7 +211,7 @@
    "latency_s": 22.7
   },
   {
-   "state": "L12 100300 agent=evgen-a",
+   "state": "L12 100300 agent=lab-a",
    "expected": {
     "severity": "medium",
     "response": "digest_only",
@@ -225,7 +225,7 @@
    "latency_s": 25.5
   },
   {
-   "state": "L12 100300 agent=evgen-a",
+   "state": "L12 100300 agent=lab-a",
    "expected": {
     "severity": "medium",
     "response": "digest_only",
@@ -239,7 +239,7 @@
    "latency_s": 19.9
   },
   {
-   "state": "L12 100300 agent=evgen-a",
+   "state": "L12 100300 agent=lab-a",
    "expected": {
     "severity": "medium",
     "response": "digest_only",
@@ -253,7 +253,7 @@
    "latency_s": 33.2
   },
   {
-   "state": "L12 100300 agent=evgen-a",
+   "state": "L12 100300 agent=lab-a",
    "expected": {
     "severity": "medium",
     "response": "digest_only",
@@ -267,7 +267,7 @@
    "latency_s": 17.5
   },
   {
-   "state": "L12 100300 agent=evgen-a",
+   "state": "L12 100300 agent=lab-a",
    "expected": {
     "severity": "medium",
     "response": "digest_only",
@@ -281,7 +281,7 @@
    "latency_s": 20.5
   },
   {
-   "state": "L12 100300 agent=evgen-a",
+   "state": "L12 100300 agent=lab-a",
    "expected": {
     "severity": "medium",
     "response": "digest_only",
