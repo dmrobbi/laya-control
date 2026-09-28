@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark"><title>Laya 300 — Eval-Host Replication &amp; Comparison</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --fg:#1a2233; --muted:#5a6478; --panel:#fff; --border:#e9ecf1;
+    --accent:#8a6a2b; --gold:#c9a96a;
+    --code-bg:#eef1f6; --code-border:#d8dee8; --warn-bg:#faf3dd;
+    --c-c:#57606a; --c-k:#9a6700; --c-g:#116329; --c-b:#0550ae; --c-r:#cf222e;
+    --d-panel:#fff; --d-fg:#24292f; --d-muted:#57606a; --d-grid:#d0d7de;
+    --d-blue:#0969da; --d-green:#1a7f37; --d-yellow:#9a6700; --d-red:#cf222e; --d-purple:#8250df;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#141b2d; --fg:#e6edf3; --muted:#8b94a8; --panel:#161b22; --border:#2a3550;
+      --accent:#c9a96a; --gold:#c9a96a;
+      --code-bg:#0d1117; --code-border:#2a3550; --warn-bg:#241c0e;
+      --c-c:#8b949e; --c-k:#d29922; --c-g:#3fb950; --c-b:#58a6ff; --c-r:#f85149;
+      --d-panel:#161b22; --d-fg:#e6edf3; --d-muted:#8b949e; --d-grid:#30363d;
+      --d-blue:#58a6ff; --d-green:#3fb950; --d-yellow:#d29922; --d-red:#f85149; --d-purple:#bc8cff;
+    }
+  }
+  [data-theme="dark"]{
+    --bg:#141b2d; --fg:#e6edf3; --muted:#8b94a8; --panel:#161b22; --border:#2a3550;
+    --accent:#c9a96a; --gold:#c9a96a;
+    --code-bg:#0d1117; --code-border:#2a3550; --warn-bg:#241c0e;
+    --c-c:#8b949e; --c-k:#d29922; --c-g:#3fb950; --c-b:#58a6ff; --c-r:#f85149;
+    --d-panel:#161b22; --d-fg:#e6edf3; --d-muted:#8b949e; --d-grid:#30363d;
+    --d-blue:#58a6ff; --d-green:#3fb950; --d-yellow:#d29922; --d-red:#f85149; --d-purple:#bc8cff;
+  }
+  body{ background:var(--bg); color:var(--fg);
+        font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Inter","Helvetica Neue",Arial,sans-serif; margin:0; }
+  a{ color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
+  .wrap{ max-width:1000px; margin:0 auto; padding:0 20px 50px; }
+  h1{ font-family:"Source Serif Pro","Source Serif","EB Garamond",Georgia,"Times New Roman",serif;
+      font-weight:600; font-size:1.9rem; margin:0 0 4px; }
+  h2{ font-family:"Source Serif Pro",Georgia,serif; font-weight:600; font-size:1.1rem;
+      margin:38px 0 10px; color:var(--fg); border-bottom:1px solid var(--border); padding-bottom:6px; }
+  h3{ font-family:"Source Serif Pro",Georgia,serif; font-weight:600; font-size:1rem;
+      margin:20px 0 6px; color:var(--accent); }
+  .sub{ color:var(--muted); font-size:13px; margin-bottom:20px; }
+  .stats{ display:flex; gap:12px; flex-wrap:wrap; margin:18px 0 6px; }
+  .stat{ flex:1 1 160px; background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+  .stat .v{ font-size:22px; font-weight:700; } .stat .l{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .stat .s{ font-size:10.5px; color:var(--muted); margin-top:4px; }
+  table{ border-collapse:collapse; width:100%; margin:12px 0; font-size:13px; }
+  th,td{ text-align:left; padding:7px 10px; border:1px solid var(--border); vertical-align:top; }
+  th{ background:var(--panel); font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); }
+  .card{ background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin:14px 0; }
+  ul{ margin:8px 0; padding-left:20px; } li{ margin:4px 0; }
+  .fine{ font-size:11.5px; color:var(--muted); }
+  .note{ background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--gold);
+         padding:1.25rem 1.5rem; margin:2.5rem 0; color:var(--muted); font-size:.95rem; }
+  .note strong{ color:var(--fg); }
+</style>
+</head>
+<body><div class="wrap">
+  <h1>Laya 300 &mdash; eval-host replication &amp; comparison</h1>
+  <div class="sub">2026-09-28 &middot; eval host (Ryzen 7 7800X3D) vs control host (Ryzen 9 6900HX) &middot; identical 300-state eval &middot; identical question set v1.1 &middot; identical checkpoints &middot; all numbers measured from the live runs</div>
+
+  <h2>The premise</h2>
+  <p>The Laya 300 gate (see the <a href="REPORT-LAYA-300-POWER-20260927.html">status &amp; power report</a>) was run on the
+    control host: a Ryzen 9 6900HX mini-PC serving three Laya checkpoints on CPU, loopback-only. The question this run answers:
+    <i>does the same decision engine produce the same decisions on different hardware, and what does it cost there?</i>
+    The same 300 alert states (pulled from the live ingest stream), the same question set v1.1, the same
+    <code>typed-decisions</code> checkpoint, the same sequential-POST methodology &mdash; on a second host with nothing
+    in common with the first except the model files.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="v">1.60&times;</div><div class="l">mean latency speedup on the eval host</div></div>
+    <div class="stat"><div class="v">100.0%</div><div class="l">cross-host answer agreement (300/300 states)</div></div>
+    <div class="stat"><div class="v">&minus;20%</div><div class="l">package energy per decision</div></div>
+    <div class="stat"><div class="v">0</div><div class="l">failed decisions across both hosts</div></div>
+  </div>
+
+  <h2>The hosts</h2>
+  <table>
+    <thead><tr><th></th><th>Eval host (new)</th><th>Control host (gate reference)</th></tr></thead>
+    <tbody>
+      <tr><td>Role</td><td>evaluation / candidate decision node</td><td>SOC control plane + decision serving</td></tr>
+      <tr><td>CPU</td><td>AMD Ryzen 7 7800X3D &mdash; 8C/16T, 5.05 GHz boost, 3D V-Cache</td><td>AMD Ryzen 9 6900HX &mdash; 8C/16T, 4.94 GHz boost</td></tr>
+      <tr><td>RAM</td><td>124 GB</td><td>109 GB usable</td></tr>
+      <tr><td>GPU</td><td>NVIDIA RTX 5060 Ti 16 GB (idle for this run: 4.7 W, 43 &deg;C)</td><td>none (iGPU only)</td></tr>
+      <tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td><td>Ubuntu 24.04</td></tr>
+      <tr><td>laya-serve</td><td>0.3.20, CPU, 8 threads, 3 checkpoints preloaded, loopback-only</td><td>identical configuration</td></tr>
+    </tbody>
+  </table>
+
+  <h2>The 300-decision run</h2>
+  <p>Same methodology as the control-host gate: 300 alert states built by the same
+    <code>build_alert_state()</code> contract from the live ingest stream (the most recent 300 alerts,
+    chronological), one <code>typed-decisions</code> predict per state, sequential POSTs to each host's
+    loopback <code>laya-serve</code>. Severity ground truth is the objective rule-level contract
+    (0&ndash;2 informational, 3&ndash;7 low, 8&ndash;11 medium, 12&ndash;13 high, 14+ critical) &mdash; no LLM judge.</p>
+  <div class="stats">
+    <div class="stat"><div class="v">520.4 ms</div><div class="l">eval host &mdash; latency p50</div></div>
+    <div class="stat"><div class="v">536.5 ms</div><div class="l">eval host &mdash; latency p95</div></div>
+    <div class="stat"><div class="v">780.6 ms</div><div class="l">control host &mdash; latency p50</div></div>
+    <div class="stat"><div class="v">1010.5 ms</div><div class="l">control host &mdash; latency p95</div></div>
+  </div>
+  <table>
+    <thead><tr><th>metric</th><th>eval host (7800X3D)</th><th>control host (6900HX)</th><th>delta</th></tr></thead>
+    <tbody>
+      <tr><td>latency p50</td><td>520.4 ms</td><td>780.6 ms</td><td>1.50&times; faster</td></tr>
+      <tr><td>latency p95</td><td>536.5 ms</td><td>1010.5 ms</td><td>1.88&times; faster</td></tr>
+      <tr><td>latency mean</td><td>518.5 ms</td><td>830.8 ms</td><td>1.60&times; faster</td></tr>
+      <tr><td>ok / fail</td><td>300 / 0</td><td>300 / 0</td><td>both clean</td></tr>
+      <tr><td>input tokens (300 states)</td><td>127,869</td><td>127,869</td><td>identical</td></tr>
+      <tr><td>severity agreement vs contract</td><td>8.7%</td><td>8.7%</td><td>identical behavior</td></tr>
+      <tr><td>response classes</td><td colspan="2">email 262 &middot; note_only 36 &middot; page 2 &mdash; identical on both hosts</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Agreement &mdash; the decisions are host-independent</h2>
+  <p>The same 300 states answered by both hosts produced <b>identical decisions</b>: severity choice
+    300/300, response choice 300/300, and the known-pattern noul scores within &plusmn;0.05 on every state.
+    The decision engine is deterministic per state &mdash; moving it between hosts does not change what the
+    SOC decides, only how fast it decides.</p>
+
+  <h2>Power</h2>
+  <p>Package energy (RAPL, powercap) sampled around each host's 300-decision run, with a 15-second
+    idle baseline (checkpoints preloaded, service idle) taken immediately before:</p>
+  <table>
+    <thead><tr><th></th><th>eval host (7800X3D)</th><th>control host (6900HX)</th></tr></thead>
+    <tbody>
+      <tr><td>idle package power</td><td>21.52 W</td><td>8.41 W</td></tr>
+      <tr><td>eval average package power</td><td>68.94 W</td><td>53.63 W</td></tr>
+      <tr><td>package energy, 300 decisions</td><td>10,727 J (2.98 Wh)</td><td>13,370 J (3.71 Wh)</td></tr>
+      <tr><td>energy per decision</td><td>35.8 J (0.0099 Wh)</td><td>44.6 J (0.0124 Wh)</td></tr>
+      <tr><td>wall time for 300</td><td>155.6 s (1.93 decisions/s)</td><td>249.3 s (1.20 decisions/s)</td></tr>
+    </tbody>
+  </table>
+  <p>Two honest readings. <b>Per decision</b>, the eval host is cheaper: 35.8 J vs 44.6 J
+    (&minus;20%) because it finishes faster. <b>Idle</b>, it is more expensive to leave switched on:
+    the 7800X3D's chiplet design idles at 21.5 W package where the 6900HX idles at 8.4 W &mdash; a
+    13 W gap that matters only if the node runs 24/7 between decision bursts
+    (13 W &times; 24 h = 0.31 kWh/day). Neither host's laya-serve GPU was engaged: the RTX 5060 Ti sat
+    at 4.7 W, 43 &deg;C throughout.</p>
+
+  <h2>Agreement vs the deterministic contract &mdash; 8.7% on this slice</h2>
+  <p>The eval slice matters: these 300 states are the most recent live-stream tail &mdash; dominated by a
+    level 8&ndash;11 web-400 flood family (285 of 300 expected <i>medium</i>, 15 expected <i>high</i>). On this
+    flood-heavy mix the <code>typed-decisions</code> checkpoint inflates severity: it answers
+    <b>high</b> for 259 of the 285 contract-<i>medium</i> states (and &ldquo;medium&rdquo; for 13 of the
+    15 contract-<i>high</i> states) &mdash; the same 8.7% agreement on <i>both</i> hosts, so this is the
+    model's view of this alert family, not a host difference. This is exactly the behavior the Phase 4
+    fine-tune targets; until then the deterministic severity rule remains authoritative and laya confirms.
+    The response recommendations follow the severity: <i>email</i> 262 / <i>note_only</i> 36 /
+    <i>page</i> 2 &mdash; which is also why the live per-alert email flood fix (digest folding) matters.</p>
+
+  <h2>Thermal &amp; HVAC</h2>
+  <p>All electrical power becomes heat; the HVAC system removes it. Measured at the package:</p>
+  <ul>
+    <li><b>Control host:</b> 53.6 W average during its 300-decision run (249 s) = <b>183 BTU/hr</b>
+      sustained; 8.4 W idle = 29 BTU/hr.</li>
+    <li><b>Eval host:</b> 68.9 W average during its run (156 s) = <b>235 BTU/hr</b> sustained;
+      21.5 W idle = 73 BTU/hr. CPU temperature 55.9&ndash;58 &deg;C under load (well under the 89 &deg;C Tjmax).</li>
+    <li><b>The daily SOC decision load</b> (480 decisions/day at the live rate) draws ~4.8 Wh/day of
+      decision compute on either host = <b>16.4 BTU/day</b> &mdash; a rounding error in any HVAC budget.</li>
+    <li><b>The GPU host context:</b> the llama.cpp fleet it replaces drew 4.92 kWh/day of GPU energy
+      always-on = <b>16,780 BTU/day</b> of waste heat. The laya migration cut the decision-path GPU
+      energy &minus;74% (4.92 &rarr; 1.29 kWh/day) &mdash; the same reduction lands directly on the room's
+      cooling duty. The eval host's RTX 5060 Ti (16 GB, idle 4.7 W) sits available as reserve GPU
+      capacity and adds essentially nothing while idle.</li>
+  </ul>
+
+  <h2>Reproduce</h2>
+  <p>Per host (Ubuntu 24.04, any modern x86 CPU &mdash; no GPU required for the CPU path):<code></code></p>
+  <pre>python3 -m venv ~/laya/.venv
+~/laya/.venv/bin/python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+~/laya/.venv/bin/python -m pip install "laya[serve]"
+HF_HOME=~/laya/hf-cache ~/laya/.venv/bin/python -c "from laya import Router; Router(preload=True)"</pre>
+  <p class="fine">Then a systemd user unit running <code>laya-serve</code> with
+    <code>LAYA_HOST=127.0.0.1 LAYA_PORT=8099 LAYA_DEVICE=cpu LAYA_PRELOAD=1 LAYA_THREADS=8
+    LAYA_MODELS=english,multilingual,typed-decisions</code> (loopback-only; never expose it
+    without its API key). Driver + results:
+    <code>evals/laya-300-run.py</code>, <code>evals/results-laya300-*-summary.json</code> in
+    <a href="https://github.com/dmrobbi/laya-control">laya-control</a>.</p>
+
+  <div class="note"><strong>Same model, same answers, different silicon.</strong>
+    The decision engine is host-independent: identical answers across an 8-core desktop
+    X3D and a 6900HX mobile-class part, 1.6&times; faster on the newer host, at roughly
+    a third of the GPU decision path's energy. For capability statements or a live
+    walkthrough: <a href="mailto:info@bedimsecurity.com">info@bedimsecurity.com</a>.</div>
+
+  <p class="fine">Methodology: identical 300-state eval (last 300 alerts from the live ingest stream,
+    anonymized), qset v1.1, model=typed-decisions, sequential POSTs, RAPL package-energy
+    sampling per run wall, k10temp/hwmon temperatures, nvidia-smi GPU sampling. Alert-sample
+    IPs/domains anonymized to RFC 5737; internal host names replaced by role labels.
+    Companion: <a href="REPORT-LAYA-300-POWER-20260927.html">Laya 300 &mdash; status &amp; power report</a>.</p>
+</div></body></html>

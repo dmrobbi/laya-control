@@ -1,0 +1,29 @@
+{
+  "endpoint": "http://127.0.0.1:8099",
+  "model": "typed-decisions",
+  "n_states": 300,
+  "n_ok": 300,
+  "n_fail": 0,
+  "latency_ms": {
+    "p50": 780.6,
+    "p95": 1010.5,
+    "mean": 830.8
+  },
+  "severity_agreement_vs_contract_pct": 8.7,
+  "response_classes": {
+    "email": 262,
+    "note_only": 36,
+    "page": 2
+  },
+  "routing_models": {
+    "typed-decisions": 300
+  },
+  "input_tokens_total": 127869,
+  "energy": {
+    "package_j": 13369.8,
+    "avg_pkg_w": 53.63,
+    "wh_per_300_decisions": 0.004,
+    "wall_s": 249.3,
+    "idle_pkg_w": 8.41
+  }
+}
