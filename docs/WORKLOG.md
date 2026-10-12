@@ -161,3 +161,34 @@ for a socat bridge again.
   `docs/LAYA-DISCRETE-MATH.md` §8 (recordings commit) and `examples/README.md`.
 - **Rollback**: the additions are inert without laya-serve; remove via
   `git revert` of the two feature commits or delete `examples/` + the doc.
+
+- **LIVE A/B completion (17:0x-17:2x UTC)**: the panel's deployed copy
+  FIXED (it referenced `HOP` in the proxy path without defining it -
+  NameError crash; HOP defined, UP_HOST retargeted to the verified LAN
+  route 192.168.1.171, the old tailnet address preserved as a comment;
+  /health = {"status":"ok"}, /status = power on + llama_health 200,
+  gateway inactive - the Laya path owns the hot path by design).
+- **A/B demo driver**: evals/ab_decision_demo.py - Path A = the laya way
+  LIVE (the store's own alert rows -> the production state surface ->
+  typed branch decisions, per-alert latency p50 ~1.1 s, input tokens
+  mean ~305 live, the tau_resp gate escalating below-gate responses by
+  policy); Path B = the STANDARD way (the captured gemma era, audited:
+  7,914 alerts, flow-ok 5.2%, severity-vs-contract 3.2%, ~959 triage
+  turns/30d at ~120k tokens each, 65% of decisions 90 s-timeouts). The
+  --live three-stage mode (live batch + a bounded decode-bound chat slice
+  x4 + the captured era in one run) committed as 9a99918 (Dawn,
+  lockstep-push + ls-remote verified).
+- **The definitive AB cast (v3)**: re-recorded FOREGROUND in-call
+  (backgrounded records were reaped mid-run silently twice before this
+  rule landed: recordings run foreground), 9.4 s / 12 frames / 3492
+  bytes; gist fa3c32ee updated in place (no link churn), raw
+  byte-identical after a CDN cache-bust, site mirror re-shipped (md5
+  11d70da1 = local). The /laya card's chip 0:10 -> 0:09 + the LIVE desc
+  (diff-gated added=2/removed=2, backup index.html.bak-20261012-chip).
+- **Left on the arc**: owner-gated only - the tailscale re-auth on thing1
+  (state NeedsLogin, no stored authkey: the rejoin needs your login;
+  a fresh URL on request), which then unblocks the wazuh-stack manager
+  port-restore + the digest's SMTP revert + an optional
+  fully-tailnet A/B run; plus your deferred infra decisions (the build
+  job's registry login, the optional launch blast). Agent-side: nothing
+  pending after this entry.
