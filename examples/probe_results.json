@@ -1,0 +1,661 @@
+{
+ "suites": {
+  "routing": {
+   "n": 24,
+   "hits": 21,
+   "accuracy": 0.875,
+   "misses": [
+    {
+     "text": "Find how many non-negative integer solutions a + b + c = 10 has.",
+     "expected": "combinatorics",
+     "chosen": "recurrence",
+     "expected_p": 0.0875,
+     "confidence": 0.7116
+    },
+    {
+     "text": "A relation on {1, 2, 3} contains the pairs (1,1), (2,2), (1,2), (2,3), (2,2) plus identity pairs. Is it reflexive and transitive?",
+     "expected": "sets",
+     "chosen": "combinatorics",
+     "expected_p": 0.1538,
+     "confidence": 0.139
+    },
+    {
+     "text": "What is Euler's totient function value for 36?",
+     "expected": "number_theory",
+     "chosen": "combinatorics",
+     "expected_p": 0.3489,
+     "confidence": 0.4062
+    }
+   ]
+  },
+  "verdicts": {
+   "n": 16,
+   "hits": 11,
+   "accuracy": 0.6875,
+   "escalations": 4,
+   "rows": [
+    {
+     "formula": "p & q",
+     "assignment": {
+      "p": true,
+      "q": false
+     },
+     "expected": false,
+     "noul": 0.6748,
+     "gate": "escalate"
+    },
+    {
+     "formula": "p & q",
+     "assignment": {
+      "p": false,
+      "q": true
+     },
+     "expected": false,
+     "noul": 0.1364,
+     "gate": "no"
+    },
+    {
+     "formula": "p -> q",
+     "assignment": {
+      "p": true,
+      "q": false
+     },
+     "expected": false,
+     "noul": 0.2325,
+     "gate": "no"
+    },
+    {
+     "formula": "p -> q",
+     "assignment": {
+      "p": false,
+      "q": true
+     },
+     "expected": true,
+     "noul": 0.145,
+     "gate": "no"
+    },
+    {
+     "formula": "~p | q",
+     "assignment": {
+      "p": true,
+      "q": false
+     },
+     "expected": false,
+     "noul": 0.2042,
+     "gate": "no"
+    },
+    {
+     "formula": "~p | q",
+     "assignment": {
+      "p": false,
+      "q": true
+     },
+     "expected": true,
+     "noul": 0.7899,
+     "gate": "yes"
+    },
+    {
+     "formula": "(p | q) & ~r",
+     "assignment": {
+      "p": true,
+      "q": false,
+      "r": true
+     },
+     "expected": false,
+     "noul": 0.2353,
+     "gate": "no"
+    },
+    {
+     "formula": "(p | q) & ~r",
+     "assignment": {
+      "p": false,
+      "q": true,
+      "r": false
+     },
+     "expected": true,
+     "noul": 0.1267,
+     "gate": "no"
+    },
+    {
+     "formula": "p & ~p",
+     "assignment": {
+      "p": true
+     },
+     "expected": false,
+     "noul": 0.1458,
+     "gate": "no"
+    },
+    {
+     "formula": "p & ~p",
+     "assignment": {
+      "p": false
+     },
+     "expected": false,
+     "noul": 0.4116,
+     "gate": "escalate"
+    },
+    {
+     "formula": "(p -> q) & (q -> p)",
+     "assignment": {
+      "p": true,
+      "q": false
+     },
+     "expected": false,
+     "noul": 0.2225,
+     "gate": "no"
+    },
+    {
+     "formula": "(p -> q) & (q -> p)",
+     "assignment": {
+      "p": false,
+      "q": true
+     },
+     "expected": false,
+     "noul": 0.1111,
+     "gate": "no"
+    },
+    {
+     "formula": "~(p & q)",
+     "assignment": {
+      "p": true,
+      "q": false
+     },
+     "expected": true,
+     "noul": 0.1738,
+     "gate": "no"
+    },
+    {
+     "formula": "~(p & q)",
+     "assignment": {
+      "p": false,
+      "q": true
+     },
+     "expected": true,
+     "noul": 0.1221,
+     "gate": "no"
+    },
+    {
+     "formula": "(p -> q) -> (~q -> ~p)",
+     "assignment": {
+      "p": true,
+      "q": false
+     },
+     "expected": true,
+     "noul": 0.5846,
+     "gate": "escalate"
+    },
+    {
+     "formula": "(p -> q) -> (~q -> ~p)",
+     "assignment": {
+      "p": false,
+      "q": true
+     },
+     "expected": true,
+     "noul": 0.5029,
+     "gate": "escalate"
+    }
+   ]
+  },
+  "formalization": {
+   "n": 10,
+   "hits": 7,
+   "accuracy": 0.7,
+   "rows": [
+    {
+     "statement": "Every element of set A is also an element of set B.",
+     "encoding": "A is a subset of B (every x in A is in B)",
+     "expected": true,
+     "noul": 0.7663
+    },
+    {
+     "statement": "Every element of set A is also an element of set B.",
+     "encoding": "B is a subset of A (every x in B is in A)",
+     "expected": false,
+     "noul": 0.7433
+    },
+    {
+     "statement": "Set A and set B share at least one common element.",
+     "encoding": "A intersect B is not empty",
+     "expected": true,
+     "noul": 0.9114
+    },
+    {
+     "statement": "Set A and set B share at least one common element.",
+     "encoding": "A intersect B is empty",
+     "expected": false,
+     "noul": 0.1481
+    },
+    {
+     "statement": "Some element of the set S is not an even number.",
+     "encoding": "there exists x in S with x not even",
+     "expected": true,
+     "noul": 0.9531
+    },
+    {
+     "statement": "Some element of the set S is not an even number.",
+     "encoding": "every x in S is even",
+     "expected": false,
+     "noul": 0.0239
+    },
+    {
+     "statement": "The relation R is symmetric: for any x, y, if x is related to y, then y is related to x.",
+     "encoding": "for all x, y: (xRy implies yRx)",
+     "expected": true,
+     "noul": 0.5528
+    },
+    {
+     "statement": "The relation R is symmetric: for any x, y, if x is related to y, then y is related to x.",
+     "encoding": "there exist x, y such that xRy implies yRx",
+     "expected": false,
+     "noul": 0.6236
+    },
+    {
+     "statement": "The relation R is transitive: whenever x is related to y and y to z, x is related to z.",
+     "encoding": "for all x, y, z: ((xRy and yRz) implies xRz)",
+     "expected": true,
+     "noul": 0.945
+    },
+    {
+     "statement": "The relation R is transitive: whenever x is related to y and y to z, x is related to z.",
+     "encoding": "for all x, y, z: (xRy and yRz and xRz)",
+     "expected": false,
+     "noul": 0.9068
+    }
+   ]
+  },
+  "graphs": {
+   "n": 8,
+   "hits": {
+    "connected": 6,
+    "bipartite": 2
+   },
+   "accuracy": {
+    "connected": 0.75,
+    "bipartite": 0.25
+   },
+   "rows": [
+    {
+     "edges": "0-1, 1-2, 2-3",
+     "expected": {
+      "connected": true,
+      "bipartite": true,
+      "cycle": false
+     },
+     "connected": 0.7011,
+     "bipartite": 0.5006
+    },
+    {
+     "edges": "0-1, 2-3",
+     "expected": {
+      "connected": false,
+      "bipartite": true,
+      "cycle": false
+     },
+     "connected": 0.4708,
+     "bipartite": 0.3125
+    },
+    {
+     "edges": "0-1, 1-2, 2-0",
+     "expected": {
+      "connected": false,
+      "bipartite": false,
+      "cycle": true
+     },
+     "connected": 0.6995,
+     "bipartite": 0.63
+    },
+    {
+     "edges": "0-1, 1-2, 2-3, 3-0",
+     "expected": {
+      "connected": true,
+      "bipartite": true,
+      "cycle": true
+     },
+     "connected": 0.8038,
+     "bipartite": 0.5129
+    },
+    {
+     "edges": "0-1, 0-2, 0-3",
+     "expected": {
+      "connected": true,
+      "bipartite": true,
+      "cycle": false
+     },
+     "connected": 0.3845,
+     "bipartite": 0.2058
+    },
+    {
+     "edges": "0-1, 1-2, 0-2, 0-3, 1-3",
+     "expected": {
+      "connected": true,
+      "bipartite": false,
+      "cycle": true
+     },
+     "connected": 0.8136,
+     "bipartite": 0.5599
+    },
+    {
+     "edges": "0-1, 1-2",
+     "expected": {
+      "connected": false,
+      "bipartite": true,
+      "cycle": false
+     },
+     "connected": 0.4172,
+     "bipartite": 0.1943
+    },
+    {
+     "edges": "0-1, 0-2, 0-3, 1-2, 1-3, 2-3",
+     "expected": {
+      "connected": true,
+      "bipartite": false,
+      "cycle": true
+     },
+     "connected": 0.8946,
+     "bipartite": 0.918
+    }
+   ]
+  },
+  "audit": {
+   "n": 10,
+   "hits": 6,
+   "accuracy": 0.6,
+   "rows": [
+    {
+     "question": "What is the gcd of 252 and 105?",
+     "proposal": "21",
+     "expected": true,
+     "noul": 0.0618
+    },
+    {
+     "question": "What is the gcd of 252 and 105?",
+     "proposal": "20",
+     "expected": false,
+     "noul": 0.0652
+    },
+    {
+     "question": "What is the modular inverse of 3 modulo 7?",
+     "proposal": "5",
+     "expected": true,
+     "noul": 0.1723
+    },
+    {
+     "question": "What is the modular inverse of 3 modulo 7?",
+     "proposal": "6",
+     "expected": false,
+     "noul": 0.1917
+    },
+    {
+     "question": "What is Euler's totient of 36?",
+     "proposal": "12",
+     "expected": true,
+     "noul": 0.0876
+    },
+    {
+     "question": "What is Euler's totient of 36?",
+     "proposal": "18",
+     "expected": false,
+     "noul": 0.1477
+    },
+    {
+     "question": "How many subsets does a set with 6 elements have, including the empty subset?",
+     "proposal": "64",
+     "expected": true,
+     "noul": 0.0778
+    },
+    {
+     "question": "How many subsets does a set with 6 elements have, including the empty subset?",
+     "proposal": "32",
+     "expected": false,
+     "noul": 0.0561
+    },
+    {
+     "question": "Is 91 prime?",
+     "proposal": "No \u2014 91 = 7 * 13, so it is composite",
+     "expected": true,
+     "noul": 0.5283
+    },
+    {
+     "question": "Is 91 prime?",
+     "proposal": "Yes, 91 is prime",
+     "expected": false,
+     "noul": 0.4862
+    }
+   ]
+  },
+  "quiz": {
+   "n": 12,
+   "hits": 3,
+   "accuracy": 0.25,
+   "mean_confidence": 0.16279166666666667,
+   "rows": [
+    {
+     "question": "How many ways are there to choose a committee of 3 people from 10 people?",
+     "options": [
+      "120",
+      "720",
+      "9880",
+      "30"
+     ],
+     "expected": "120",
+     "chosen": "30",
+     "confidence": 0.0048
+    },
+    {
+     "question": "How many bit strings of length 8 are there?",
+     "options": [
+      "64",
+      "128",
+      "256",
+      "512"
+     ],
+     "expected": "256",
+     "chosen": "64",
+     "confidence": 0.0595
+    },
+    {
+     "question": "How many ways can 3 candies be picked from 40 distinct candies (order irrelevant)?",
+     "options": [
+      "9880",
+      "69000",
+      "59040",
+      "120"
+     ],
+     "expected": "9880",
+     "chosen": "59040",
+     "confidence": 0.3342
+    },
+    {
+     "question": "How many non-negative integer solutions does a + b + c = 10 have?",
+     "options": [
+      "66",
+      "720",
+      "120",
+      "220"
+     ],
+     "expected": "66",
+     "chosen": "66",
+     "confidence": 0.1522
+    },
+    {
+     "question": "How many derangements (no fixed point) are there of 4 items?",
+     "options": [
+      "9",
+      "24",
+      "8",
+      "12"
+     ],
+     "expected": "9",
+     "chosen": "9",
+     "confidence": 0.0368
+    },
+    {
+     "question": "In how many orders can 5 distinct books be arranged on a shelf?",
+     "options": [
+      "60",
+      "120",
+      "24",
+      "25"
+     ],
+     "expected": "120",
+     "chosen": "60",
+     "confidence": 0.2504
+    },
+    {
+     "question": "How many subsets does a set with 6 elements have (including the empty set)?",
+     "options": [
+      "32",
+      "36",
+      "64",
+      "12"
+     ],
+     "expected": "64",
+     "chosen": "36",
+     "confidence": 0.1032
+    },
+    {
+     "question": "How many binary strings of length 4 have no two adjacent 1s?",
+     "options": [
+      "4",
+      "6",
+      "8",
+      "16"
+     ],
+     "expected": "8",
+     "chosen": "4",
+     "confidence": 0.6158
+    },
+    {
+     "question": "Four people stand in a row for a photo. How many arrangements are there?",
+     "options": [
+      "16",
+      "24",
+      "12",
+      "8"
+     ],
+     "expected": "24",
+     "chosen": "16",
+     "confidence": 0.2211
+    },
+    {
+     "question": "How many 5-card hands can be drawn from a 52-card deck?",
+     "options": [
+      "2598960",
+      "311875200",
+      "25989600",
+      "2639760"
+     ],
+     "expected": "2598960",
+     "chosen": "2639760",
+     "confidence": 0.0294
+    },
+    {
+     "question": "How many ways can 8 items be chosen from 10 items?",
+     "options": [
+      "90",
+      "45",
+      "40",
+      "80"
+     ],
+     "expected": "45",
+     "chosen": "45",
+     "confidence": 0.0927
+    },
+    {
+     "question": "With |A|=15, |B|=10, |C|=12, |A and B|=5, |A and C|=4, |B and C|=3, |A and B and C|=2: how large is A union B union C?",
+     "options": [
+      "22",
+      "25",
+      "27",
+      "37"
+     ],
+     "expected": "27",
+     "chosen": "25",
+     "confidence": 0.0534
+    }
+   ]
+  }
+ },
+ "latency_ms": [
+  376.8958569999086,
+  398.8185279958998,
+  376.9929459958803,
+  393.0770489969291,
+  404.49892800097587,
+  413.4136779975961,
+  456.6963269971893,
+  381.5506259998074,
+  403.2161659997655,
+  428.3233900059713,
+  435.5015690016444,
+  443.2692619957379,
+  433.34197600051994,
+  537.7896860009059,
+  552.3348100032308,
+  502.6501399988774,
+  591.4789710004698,
+  505.2997749953647,
+  518.2339020029758,
+  393.6940570056322,
+  427.4806539979181,
+  395.6673180000507,
+  384.562374005327,
+  417.51801899954444,
+  252.77607799944235,
+  264.1409469943028,
+  258.697707002284,
+  271.7520959995454,
+  253.02886899589794,
+  257.7836309937993,
+  270.58183399640257,
+  292.5154949989519,
+  248.56084199564066,
+  257.14212599996245,
+  283.59608499886235,
+  273.5701470010099,
+  265.7645790022798,
+  262.486624000303,
+  279.7568699970725,
+  275.2371129972744,
+  298.2475659955526,
+  294.7799519970431,
+  285.8041029976448,
+  282.08256600191817,
+  292.8155479967245,
+  277.69262099900516,
+  329.97846200305503,
+  333.2265190038015,
+  352.1315389953088,
+  342.5879379938124,
+  448.68166300148005,
+  461.6857950022677,
+  468.95583200239344,
+  472.176685994782,
+  483.23603099561296,
+  483.9439269999275,
+  441.6946249984903,
+  507.81593099964084,
+  227.69209899706766,
+  233.75321899948176,
+  229.1165450005792,
+  230.43599700031336,
+  227.38296900206478,
+  231.85400100192055,
+  240.5688939979882,
+  252.02384700241964,
+  271.7965629999526,
+  236.66854000475723,
+  241.68118400120875,
+  223.83339700172655,
+  259.05525100097293,
+  244.19256999681238,
+  232.44628100655973,
+  245.36201099544996,
+  241.00040199846262,
+  239.58252800366608,
+  250.44451000576373,
+  319.92598099895986,
+  266.27634299802594,
+  393.10555400152225
+ ]
+}

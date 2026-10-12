@@ -43,6 +43,11 @@ Everything is stdlib-only — no pip installs.
 | `install.sh` | both | role-based installer (`control` / `gpu`) |
 | `docs/WORKLOG.md` | — | field log from a real migration (minimax-m3 → llama.cpp), incl. every gotcha |
 
+**Discrete mathematics with Laya:** `examples/` implements the laya × deterministic-engine
+pattern — the decision model routes, tags, and gates; `examples/dm_core.py` computes every
+answer exactly (stdlib only). Seven runnable tutorials, a measurable capability probe, and a
+fine-tune dataset generator live there; the full study write-up is `docs/LAYA-DISCRETE-MATH.md`.
+
 ## Prerequisites
 
 - **GPU host**: NVIDIA GPUs + CUDA build of llama.cpp (`~/llama.cpp/build/bin/llama-server`),

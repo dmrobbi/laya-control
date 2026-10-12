@@ -128,3 +128,36 @@ for a socat bridge again.
   pre-existing tickets-MCP connection-refused + dispatch `_decision` serialization
   TypeError; the escalate gate-conf >=0.85 bucket (25 soak rows, 0% agreement vs the
   deterministic rule) needs a direction check before primary mode.
+
+## Laya × discrete-math workspace shipped (2026-10-12 ~14:5x UTC)
+
+- **`examples/` landed in laya-control** (Dawn-authored): `dm_core.py` = the
+  deterministic engine (propositional parse/truth tables/satisfiability, set-identity
+  counterexample search, gcd/Bezout/inverse/primes/totient/modpow, counting
+  (P/C/stars&bars/derangements/inclusion-exclusion/Catalan), graph BFS/cycle/bipartite/
+  euler/shortest-path, linear recurrences + closed-form verification) with a 44-assert
+  self-test; `laya_math.py` = the shared stdlib client (`/health` + `/v1/systemone`,
+  answer readers, the `tau_gate` idiom); `probe_capability.py` = six measurable suites;
+  tutorials t01–t07 (route-with-laya/answer-with-engine, tau verdict gate,
+  formalization + counterexample, numeric-QA warning, graph-properties honesty,
+  number-theory showcase + nay-biased audit, and the tutor loop that ships).
+- **Measured capability (0.3.20 english ckpt, CPU, sequential)**: routing 0.875 (24);
+  formula verdicts 11/16 direct + 4/16 tau-escalations in the probe framing, but
+  6/16 direct / 10/16 system in t02's framing — **one sentence of state text moved
+  the same question set** (prompt-sensitivity finding, both runs recorded);
+  formalization 0.700; graph properties 0.750 connected / 0.250 bipartite;
+  answer-audit 0.600 mixed (probe suite E) and 0.400 all-worded (t06) with a
+  systematic nay-bias (0/5 true-rows accepted); numeric quiz 3/12 = 0.250 = chance
+  at mean confidence 0.163. Latency p50 295 / p95 518 / max 591 ms over 80 calls.
+- **Training kit**: `training/make_dataset.py` (deterministic generator; same seed
+  → byte-identical files; verify/classify/tag families in the upstream
+  state/questions/expected format) + `training/FINETUNE.md` (RLCD recipe, parallel
+  option layout = 100% same-answer-under-shuffle vs 91.7% sequential, calibration
+  + held-out eval gates; version note: the house venv pins 0.3.20, which predates
+  `laya.evals` — run the gates from a current-laya venv) + committed sample rows
+  (`training/sample/*.jsonl`, seed 7).
+- **Recordings**: four asciinema `.cast` runs (probe / examples / verify / publish)
+  recorded as the work happened; hosted as public gists, player links in
+  `docs/LAYA-DISCRETE-MATH.md` §8 (recordings commit) and `examples/README.md`.
+- **Rollback**: the additions are inert without laya-serve; remove via
+  `git revert` of the two feature commits or delete `examples/` + the doc.
