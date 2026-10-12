@@ -38,6 +38,8 @@ from laya_shadow import TRIAGE_QUESTIONS, build_alert_state, extract_level  # no
 SOC_LOG = Path.home() / ".openclaw/soc/data/realtime_soc.jsonl"
 SNAPSHOT = HERE / "llm-baseline-snapshot.json"
 LAYA_URL = os.environ.get("LAYA_URL", "http://127.0.0.1:8099")
+SOC_CHAT_URL = os.environ.get("SOC_CHAT_URL", "http://127.0.0.1:15108")
+CHAT_MODEL = os.environ.get("CHAT_MODEL", "gemma-4-31b-it-q3km")
 TAU_RESP = float(os.environ.get("TAU_RESP", "0.70"))
 CUTOFF = "2026-09-27"
 BATCH_BY_CLASS = 3  # rows per severity class per pass
@@ -91,6 +93,119 @@ def decide(state, questions, retries=2):
             if attempt < retries:
                 time.sleep(1.0)
     raise last_exc
+
+
+def chat_decision(state_text: str, retries=1):
+    """The STANDARD way, live: the same alert through the generative slot
+    (llama.cpp's OpenAI-compatible endpoint, one JSON-out prompt per alert)."""
+    prompt = (
+        "You are the triage decider of an AI SOC. Given this alert, decide:\n"
+        "- severity: informational | low | medium | high | critical\n"
+        "- response: note_only | digest_only | email | page | auto_remediate\n"
+        "- escalate: true | false  (open an incident / reach a human now?)\n"
+        f"Alert: {state_text}\n"
+        'Answer with exactly one JSON object and nothing else:\n'
+        '{"severity": "...", "response": "...", "escalate": true|false}'
+    )
+    body = json.dumps({
+        "model": CHAT_MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.0,
+    }).encode()
+    last_exc = None
+    for attempt in range(retries + 1):
+        try:
+            request = urllib.request.Request(
+                SOC_CHAT_URL + "/v1/chat/completions",
+                data=body,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            started = time.perf_counter()
+            with urllib.request.urlopen(request, timeout=300) as resp:
+                payload = json.loads(resp.read().decode())
+            return payload, (time.perf_counter() - started) * 1000.0
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            last_exc = exc
+            if attempt < retries:
+                time.sleep(1.0)
+    raise last_exc
+
+
+def pct(vals, p):
+    """Percentile over sorted wall-times."""
+    xs = sorted(vals)
+    if not xs:
+        return 0.0
+    return xs[min(len(xs) - 1, int(round(p / 100 * (len(xs) - 1))))]
+
+
+def path_b_live(batch):
+    """The standard way, LIVE: the generative slot decides each branch."""
+    latencies = []
+    tin_tokens = []
+    sev_hits = sev_n = 0
+    esc_hits = esc_n = 0
+    parsed_n = 0
+    raws_shown = 0
+    for row in batch:
+        state = scrub(build_alert_state({
+            "rule": {"id": row.get("rule_id"), "level": row.get("level"),
+                     "description": row.get("rule_description")},
+            "agent": {"name": row.get("agent_name")},
+            "data": {"srcip": row.get("src_ip")},
+        }))
+        try:
+            payload, latency_ms = chat_decision(state)
+        except Exception as exc:
+            print(f"  chat call FAILED: {type(exc).__name__}: {str(exc)[:160]}")
+            continue
+        latencies.append(latency_ms)
+        u = payload.get("usage") or {}
+        for key in ("prompt_tokens", "input_tokens"):
+            if isinstance(u.get(key), (int, float)):
+                tin_tokens.append(float(u[key]))
+                break
+        content = ""
+        try:
+            content = payload["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, TypeError):
+            content = ""
+        decided = {}
+        try:
+            m = re.search(r"\{.*\}", content, re.S)
+            if m:
+                decided = json.loads(m.group(0))
+        except (json.JSONDecodeError, TypeError):
+            decided = {}
+        if decided.get("severity") is not None or "escalate" in decided:
+            parsed_n += 1
+        if raws_shown < 3:
+            raws_shown += 1
+            print(f"  alert: {scrub(state)[:96]}")
+            print(f"    raw reply: {scrub(str(content))[:300]}")
+        level = extract_level(row)
+        expected_sev = contract_severity(level)
+        if decided.get("severity") is not None:
+            sev_hits += int(str(decided.get("severity")) == str(expected_sev))
+            sev_n += 1
+        if "escalate" in decided:
+            should = expected_sev in ("high", "critical")
+            esc_hits += int(bool(decided.get("escalate")) == should)
+            esc_n += 1
+    n = len(latencies)
+    print()
+    print(f"  chat calls completed: {n}")
+    if latencies:
+        print(f"  decision latency: p50={pct(latencies, 50):.0f}ms p95={pct(latencies, 95):.0f}ms max={max(latencies):.0f}ms")
+    if tin_tokens:
+        print(f"  input tokens per chat turn: mean={statistics.fmean(tin_tokens):.0f} max={max(tin_tokens):.0f} (the generative slot ingests the whole prompt each turn)")
+    print(f"  strict-JSON parse rate: {parsed_n}/{n} = {parsed_n / max(1, n):.3f} (text generation = something to parse, every time)")
+    if sev_n:
+        print(f"  severity agrees with the contract: {sev_hits}/{sev_n} = {sev_hits / sev_n:.3f}")
+    if esc_n:
+        print(f"  escalation agrees with the rule: {esc_hits}/{esc_n} = {esc_hits / esc_n:.3f}")
+    return latencies, tin_tokens, parsed_n
 
 
 def sample_batch():
@@ -246,9 +361,16 @@ def main() -> int:
     print()
     path_a(batch)
     print()
-    print("-- Path B: the STANDARD way (captured era, audited rows from the triage store)")
-    print()
-    path_b()
+    if "--live" in sys.argv:
+        print("-- Path B: the STANDARD way (LIVE generative slot - every branch a real LLM turn)")
+        path_b_live(batch[:4])
+        print()
+        print("-- the captured era, for the historical contrast (audited rows)")
+        path_b()
+    else:
+        print("-- Path B: the STANDARD way (captured era, audited rows from the triage store)")
+        print()
+        path_b()
     print()
     print("the decision-tree read: the laya way answers the tree's branch")
     print("decisions with typed answers + calibrated confidence in ~1 s per")
