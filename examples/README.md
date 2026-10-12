@@ -67,5 +67,10 @@ worker; requests queue — do not point high-rate pollers at laya-serve).
 - `training/` — build a discrete-math decision dataset and fine-tune (that
   is where tag/verdict quality is bought: base 0.362 -> 0.766 upstream).
 - `../docs/LAYA-DISCRETE-MATH.md` — the full capability study write-up.
-- Terminal recordings of every run are published as gists (links in the
-  study doc and in the WORKLOG entry for 2026-10-12).
+- Terminal recordings of every run are published as gists (open the raw
+  `.cast` URL in an asciinema player embed, or `asciinema play` the local
+  copy):
+  - probe — <https://gist.github.com/dmrobbi/8bc162c9c710e9bb68c979a1293ee33f>
+  - examples (t01–t07) — <https://gist.github.com/dmrobbi/8cbc6178e54797264e21162b254afdd9>
+  - engine verify — <https://gist.github.com/dmrobbi/40534e2962525ab87a76f3a3d2f89684>
+  - publish + verify — <https://gist.github.com/dmrobbi/12264e3c798a40518749a657ff11dc3f>

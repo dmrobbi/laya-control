@@ -205,10 +205,11 @@ Terminal recordings (`asciinema .cast`, player-ready, gist links below):
 a capability-probe run, a full examples run, an engine verification run,
 and the publish/verification run.
 
-**Terminal recordings (public gists, raw `.cast` — open in the asciinema
-player or `asciinema play`):**
+**Terminal recordings (public gists; raw `.cast` URLs are player-ready, HTTP 200 + CORS; or `asciinema play <file>` on the server):**
 
-- probe run — (link added in the recordings commit)
-- examples run — (link added in the recordings commit)
-- engine verify — (link added in the recordings commit)
-- publish + verify — (link added in the recordings commit)
+- probe run (`laya-dm-probe.cast`): gist <https://gist.github.com/dmrobbi/8bc162c9c710e9bb68c979a1293ee33f> — raw <https://gist.githubusercontent.com/dmrobbi/8bc162c9c710e9bb68c979a1293ee33f/raw/laya-dm-probe.cast>
+- examples run, tutorials t01–t07 (`laya-dm-examples.cast`): gist <https://gist.github.com/dmrobbi/8cbc6178e54797264e21162b254afdd9> — raw <https://gist.githubusercontent.com/dmrobbi/8cbc6178e54797264e21162b254afdd9/raw/laya-dm-examples.cast>
+- engine verify (`laya-dm-verify.cast`): gist <https://gist.github.com/dmrobbi/40534e2962525ab87a76f3a3d2f89684> — raw <https://gist.githubusercontent.com/dmrobbi/40534e2962525ab87a76f3a3d2f89684/raw/laya-dm-verify.cast>
+- publish + verify (`laya-dm-publish.cast`): gist <https://gist.github.com/dmrobbi/12264e3c798a40518749a657ff11dc3f> — raw <https://gist.githubusercontent.com/dmrobbi/12264e3c798a40518749a657ff11dc3f/raw/laya-dm-publish.cast>
+
+Local copies: `~/laya-dm-{probe,examples,verify,publish}.cast` (recorded real-time on the decision host).
